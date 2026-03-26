@@ -35,18 +35,24 @@ describe("submitHubspotForm", () => {
       }),
     ).resolves.toEqual({ success: true });
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/hubspot", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        formType: "demo",
-        firstname: "Ada",
-        lastname: "Lovelace",
-        email: "ada@example.com",
-        message: "Book me a demo.",
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/hubspot",
+      expect.objectContaining({
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }),
+    );
+
+    const [, requestInit] = fetchMock.mock.calls[0] ?? [];
+
+    expect(JSON.parse(String(requestInit?.body))).toEqual({
+      formType: "demo",
+      firstname: "Ada",
+      lastname: "Lovelace",
+      email: "ada@example.com",
+      message: "Book me a demo.",
     });
   });
 

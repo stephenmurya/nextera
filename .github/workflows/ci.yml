@@ -11,17 +11,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      WORDPRESS_GRAPHQL_URL: https://example.com/graphql
-      WORDPRESS_PREVIEW_SECRET: preview-secret
-      WORDPRESS_PREVIEW_AUTH_TOKEN: preview-auth-token
-      NEXT_PUBLIC_SITE_URL: https://example.com
-      REVALIDATION_SECRET: revalidation-secret
-      HUBSPOT_PORTAL_ID: portal-id
-      HUBSPOT_PRIVATE_APP_TOKEN: private-token
-      HUBSPOT_FORM_GUID_DEMO: demo-guid
-      HUBSPOT_FORM_GUID_WAITLIST: waitlist-guid
-      HUBSPOT_FORM_GUID_CONTACT: contact-guid
 
     steps:
       - name: Checkout repository
@@ -47,3 +36,14 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          WORDPRESS_GRAPHQL_URL: https://example.com/graphql
+          WORDPRESS_PREVIEW_SECRET: preview-secret
+          WORDPRESS_PREVIEW_AUTH_TOKEN: preview-auth-token
+          NEXT_PUBLIC_SITE_URL: https://example.com
+          REVALIDATION_SECRET: revalidation-secret
+          HUBSPOT_PORTAL_ID: portal-id
+          HUBSPOT_PRIVATE_APP_TOKEN: private-token
+          HUBSPOT_FORM_GUID_DEMO: demo-guid
+          HUBSPOT_FORM_GUID_WAITLIST: waitlist-guid
+          HUBSPOT_FORM_GUID_CONTACT: contact-guid

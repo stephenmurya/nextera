@@ -47,8 +47,8 @@ const rawFeatureGridSectionSchema = z.object({
   items: z.array(rawFeatureItemSchema),
 });
 
-const rawRichTextSectionSchema = z.object({
-  __typename: z.literal("PageBuilderSectionsRichtextLayout"),
+const RawRichTextSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsRichTextLayout"),
   anchor: z.string().nullish(),
   html: z.string().min(1),
 });
@@ -250,7 +250,7 @@ function mapSection(
     };
   }
 
-  const richTextSection = rawRichTextSectionSchema.safeParse(rawSection);
+  const richTextSection = RawRichTextSectionSchema.safeParse(rawSection);
 
   if (richTextSection.success) {
     const anchor = normalizeOptionalString(richTextSection.data.anchor);

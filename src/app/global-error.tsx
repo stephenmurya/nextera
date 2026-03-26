@@ -6,16 +6,27 @@ import "./globals.css";
 
 type GlobalErrorProps = {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  reset: () => void;
+  unstable_retry?: () => void;
 };
 
 export default function GlobalError({
   error,
+  reset,
   unstable_retry,
 }: GlobalErrorProps) {
   useEffect(() => {
     console.error(error);
   }, [error]);
+
+  const handleRetry = () => {
+    if (typeof reset === "function") {
+      reset();
+      return;
+    }
+
+    unstable_retry?.();
+  };
 
   return (
     <html lang="en">
@@ -46,7 +57,7 @@ export default function GlobalError({
               <div className="flex flex-wrap gap-3">
                 <button
                   className="rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]"
-                  onClick={() => unstable_retry()}
+                  onClick={handleRetry}
                   type="button"
                 >
                   Try Again

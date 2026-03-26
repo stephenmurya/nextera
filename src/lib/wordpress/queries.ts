@@ -49,7 +49,7 @@ export const GET_PAGE_BY_URI = gql`
               icon
             }
           }
-          ... on PageBuilderSectionsRichtextLayout {
+          ... on PageBuilderSectionsRichTextLayout {
             anchor
             html
           }
