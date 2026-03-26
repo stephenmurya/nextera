@@ -1,0 +1,10 @@
+process.env.WORDPRESS_GRAPHQL_URL ??= "https://example.com/graphql";
+process.env.WORDPRESS_PREVIEW_SECRET ??= "preview-secret";
+process.env.WORDPRESS_PREVIEW_AUTH_TOKEN ??= "preview-auth-token";
+process.env.NEXT_PUBLIC_SITE_URL ??= "https://example.com";
+process.env.REVALIDATION_SECRET ??= "revalidation-secret";
+process.env.HUBSPOT_PORTAL_ID ??= "portal-id";
+process.env.HUBSPOT_PRIVATE_APP_TOKEN ??= "private-token";
+process.env.HUBSPOT_FORM_GUID_DEMO ??= "demo-guid";
+process.env.HUBSPOT_FORM_GUID_WAITLIST ??= "waitlist-guid";
+process.env.HUBSPOT_FORM_GUID_CONTACT ??= "contact-guid";
