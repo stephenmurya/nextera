@@ -6,6 +6,12 @@ import {
   waitlistFormSchema,
 } from "@/lib/validations/forms";
 
+type WaitlistFormProps = {
+  description?: string;
+  embedded?: boolean;
+  title?: string;
+};
+
 const defaultValues: WaitlistFormValues = {
   formType: "waitlist",
   first_name: "",
@@ -19,14 +25,19 @@ const defaultValues: WaitlistFormValues = {
   bot_field: "",
 };
 
-export function WaitlistForm() {
+export function WaitlistForm({
+  description = "Join the early access list and we'll let you know when your team can start onboarding.",
+  embedded = false,
+  title = "Reserve your place",
+}: WaitlistFormProps) {
   return (
     <LeadCaptureForm
       defaultValues={defaultValues}
-      description="Join the early access list and we’ll let you know when your team can start onboarding."
+      description={description}
+      embedded={embedded}
       schema={waitlistFormSchema}
       submitLabel="Join the waitlist"
-      title="Reserve your place"
+      title={title}
     />
   );
 }

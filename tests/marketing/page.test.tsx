@@ -1,13 +1,20 @@
+import { notFound } from "next/navigation";
 import { renderToStaticMarkup } from "react-dom/server";
 import { vi } from "vitest";
 
 const marketingPageMocks = vi.hoisted(() => ({
   draftMode: vi.fn(),
-  getPageBySlug: vi.fn(),
+  getPageByUri: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
   draftMode: marketingPageMocks.draftMode,
+}));
+
+vi.mock("next/navigation", () => ({
+  notFound: vi.fn(() => {
+    throw new Error("NEXT_NOT_FOUND");
+  }),
 }));
 
 vi.mock("@/components/DraftIndicator", () => ({
@@ -26,7 +33,7 @@ vi.mock("@/lib/wordpress/client", async () => {
 
   return {
     ...actual,
-    getPageBySlug: marketingPageMocks.getPageBySlug,
+    getPageByUri: marketingPageMocks.getPageByUri,
   };
 });
 
@@ -50,8 +57,9 @@ const mockPage = {
 describe("marketing page draft indicator", () => {
   beforeEach(() => {
     marketingPageMocks.draftMode.mockReset();
-    marketingPageMocks.getPageBySlug.mockReset();
-    marketingPageMocks.getPageBySlug.mockResolvedValue(mockPage);
+    marketingPageMocks.getPageByUri.mockReset();
+    marketingPageMocks.getPageByUri.mockResolvedValue(mockPage);
+    vi.mocked(notFound).mockClear();
   });
 
   it("renders the draft indicator only when preview mode is enabled", async () => {
@@ -70,8 +78,8 @@ describe("marketing page draft indicator", () => {
     );
 
     expect(html).toContain("data-draft-indicator");
-    expect(marketingPageMocks.getPageBySlug).toHaveBeenCalledWith(
-      "about",
+    expect(marketingPageMocks.getPageByUri).toHaveBeenCalledWith(
+      "/about/",
       true,
     );
   });
@@ -92,9 +100,46 @@ describe("marketing page draft indicator", () => {
     );
 
     expect(html).not.toContain("data-draft-indicator");
-    expect(marketingPageMocks.getPageBySlug).toHaveBeenCalledWith(
-      "about",
+    expect(marketingPageMocks.getPageByUri).toHaveBeenCalledWith(
+      "/about/",
       false,
     );
+  });
+
+  it("joins nested slugs into the matching WordPress URI", async () => {
+    marketingPageMocks.draftMode.mockResolvedValue({
+      disable: vi.fn(),
+      enable: vi.fn(),
+      isEnabled: false,
+    });
+
+    await MarketingPage({
+      params: Promise.resolve({
+        slug: ["about", "team"],
+      }),
+    });
+
+    expect(marketingPageMocks.getPageByUri).toHaveBeenCalledWith(
+      "/about/team/",
+      false,
+    );
+  });
+
+  it("calls notFound when WordPress returns no page for a URI", async () => {
+    marketingPageMocks.draftMode.mockResolvedValue({
+      disable: vi.fn(),
+      enable: vi.fn(),
+      isEnabled: false,
+    });
+    marketingPageMocks.getPageByUri.mockResolvedValue(null);
+
+    await expect(
+      MarketingPage({
+        params: Promise.resolve({
+          slug: ["missing-page"],
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+    expect(notFound).toHaveBeenCalledTimes(1);
   });
 });

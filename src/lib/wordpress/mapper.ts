@@ -1,11 +1,14 @@
 import { z } from "zod";
 import type {
   CallToAction,
+  FaqItem,
   FeatureGridItem,
+  HowItWorksStep,
   MediaAsset,
   Page,
   PageSection,
   SeoMetadata,
+  StatItem,
 } from "@/types/cms";
 
 const rawMediaSchema = z.object({
@@ -53,6 +56,88 @@ const RawRichTextSectionSchema = z.object({
   html: z.string().min(1),
 });
 
+const rawFaqItemSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+});
+
+const rawFaqSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsFaqLayout"),
+  anchor: z.string().nullish(),
+  headline: z.string().nullish(),
+  faqs: z.array(rawFaqItemSchema),
+});
+
+const rawCtaBandSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsCtaBandLayout"),
+  anchor: z.string().nullish(),
+  headline: z.string().min(1),
+  subheadline: z.string().nullish(),
+  ctaButton: rawCtaSchema.nullish(),
+});
+
+const rawTestimonialSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsTestimonialLayout"),
+  anchor: z.string().nullish(),
+  quote: z.string().min(1),
+  author: z.string().min(1),
+  role: z.string().nullish(),
+  company: z.string().nullish(),
+  image: rawMediaEdgeSchema.nullish(),
+});
+
+const rawUseCasesSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsUseCasesLayout"),
+  anchor: z.string().nullish(),
+  headline: z.string().nullish(),
+  items: z.array(rawFeatureItemSchema),
+});
+
+const rawHowItWorksStepSchema = z.object({
+  stepNumber: z.union([z.string().min(1), z.number()]),
+  title: z.string().min(1),
+  description: z.string().nullish(),
+});
+
+const rawHowItWorksSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsHowItWorksLayout"),
+  anchor: z.string().nullish(),
+  headline: z.string().nullish(),
+  steps: z.array(rawHowItWorksStepSchema),
+});
+
+const rawStatSchema = z.object({
+  value: z.union([z.string().min(1), z.number()]),
+  label: z.string().min(1),
+});
+
+const rawStatsStripSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsStatsStripLayout"),
+  anchor: z.string().nullish(),
+  stats: z.array(rawStatSchema),
+});
+
+const rawFormSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsFormSectionLayout"),
+  anchor: z.string().nullish(),
+  formType: z.enum(["waitlist", "demo", "contact"]),
+  headline: z.string().min(1),
+  body: z.string().nullish(),
+});
+
+const rawSectionSchema = z.discriminatedUnion("__typename", [
+  rawHeroSectionSchema,
+  rawFeatureGridSectionSchema,
+  RawRichTextSectionSchema,
+  rawFaqSectionSchema,
+  rawCtaBandSectionSchema,
+  rawTestimonialSectionSchema,
+  rawUseCasesSectionSchema,
+  rawHowItWorksSectionSchema,
+  rawStatsStripSectionSchema,
+  rawFormSectionSchema,
+]);
+
 const rawSeoImageSchema = z
   .object({
     sourceUrl: z.string().nullish(),
@@ -88,6 +173,7 @@ const rawPageResponseSchema = z.object({
 
 type RawPageNode = z.infer<typeof rawPageNodeSchema>;
 type RawSectionRecord = Record<string, unknown>;
+type RawSection = z.infer<typeof rawSectionSchema>;
 
 type MapWordPressPageOptions = {
   siteUrl: string;
@@ -171,6 +257,34 @@ function mapFeatureItem(
   };
 }
 
+function mapFaqItem(item: z.infer<typeof rawFaqItemSchema>): FaqItem {
+  return {
+    question: item.question,
+    answer: item.answer,
+  };
+}
+
+function normalizeDisplayValue(value: string | number) {
+  return typeof value === "number" ? value.toString() : value.trim();
+}
+
+function mapHowItWorksStep(
+  step: z.infer<typeof rawHowItWorksStepSchema>,
+): HowItWorksStep {
+  return {
+    stepNumber: normalizeDisplayValue(step.stepNumber),
+    title: step.title,
+    description: normalizeOptionalString(step.description),
+  };
+}
+
+function mapStat(item: z.infer<typeof rawStatSchema>): StatItem {
+  return {
+    value: normalizeDisplayValue(item.value),
+    label: item.label,
+  };
+}
+
 function mapSeo(rawPage: RawPageNode, siteUrl: string): SeoMetadata {
   const slug = normalizeUriToSlug(rawPage.uri);
   const title = normalizeOptionalString(rawPage.seo?.title) ?? rawPage.title;
@@ -214,61 +328,119 @@ function logDroppedSection(
 }
 
 function mapSection(
-  rawSection: RawSectionRecord,
+  rawSectionRecord: RawSectionRecord,
   index: number,
 ): PageSection | null {
-  const heroSection = rawHeroSectionSchema.safeParse(rawSection);
+  const parsedSection = rawSectionSchema.safeParse(rawSectionRecord);
 
-  if (heroSection.success) {
-    const anchor = normalizeOptionalString(heroSection.data.anchor);
+  if (!parsedSection.success) {
+    logDroppedSection(
+      index,
+      typeof rawSectionRecord.__typename === "string"
+        ? rawSectionRecord.__typename
+        : undefined,
+      parsedSection.error.issues,
+    );
 
-    return {
-      id: buildSectionId("hero", index, anchor),
-      _type: "hero",
-      anchor,
-      eyebrow: normalizeOptionalString(heroSection.data.eyebrow),
-      headline: heroSection.data.headline,
-      body: normalizeOptionalString(heroSection.data.body),
-      primaryCta: mapCallToAction(heroSection.data.primaryCta),
-      secondaryCta: mapCallToAction(heroSection.data.secondaryCta),
-      backgroundImage: mapMediaAsset(heroSection.data.backgroundImage?.node),
-    };
+    return null;
   }
 
-  const featureGridSection = rawFeatureGridSectionSchema.safeParse(rawSection);
+  return mapParsedSection(parsedSection.data, index);
+}
 
-  if (featureGridSection.success) {
-    const anchor = normalizeOptionalString(featureGridSection.data.anchor);
+function mapParsedSection(rawSection: RawSection, index: number): PageSection {
+  const anchor = normalizeOptionalString(rawSection.anchor);
 
-    return {
-      id: buildSectionId("featureGrid", index, anchor),
-      _type: "featureGrid",
-      anchor,
-      headline: normalizeOptionalString(featureGridSection.data.headline),
-      intro: normalizeOptionalString(featureGridSection.data.intro),
-      items: featureGridSection.data.items.map(mapFeatureItem),
-    };
+  switch (rawSection.__typename) {
+    case "PageBuilderSectionsHeroLayout":
+      return {
+        id: buildSectionId("hero", index, anchor),
+        _type: "hero",
+        anchor,
+        eyebrow: normalizeOptionalString(rawSection.eyebrow),
+        headline: rawSection.headline,
+        body: normalizeOptionalString(rawSection.body),
+        primaryCta: mapCallToAction(rawSection.primaryCta),
+        secondaryCta: mapCallToAction(rawSection.secondaryCta),
+        backgroundImage: mapMediaAsset(rawSection.backgroundImage?.node),
+      };
+    case "PageBuilderSectionsFeatureGridLayout":
+      return {
+        id: buildSectionId("featureGrid", index, anchor),
+        _type: "featureGrid",
+        anchor,
+        headline: normalizeOptionalString(rawSection.headline),
+        intro: normalizeOptionalString(rawSection.intro),
+        items: rawSection.items.map(mapFeatureItem),
+      };
+    case "PageBuilderSectionsRichTextLayout":
+      return {
+        id: buildSectionId("richText", index, anchor),
+        _type: "richText",
+        anchor,
+        html: rawSection.html,
+      };
+    case "PageBuilderSectionsFaqLayout":
+      return {
+        id: buildSectionId("faq", index, anchor),
+        _type: "faq",
+        anchor,
+        headline: normalizeOptionalString(rawSection.headline),
+        faqs: rawSection.faqs.map(mapFaqItem),
+      };
+    case "PageBuilderSectionsCtaBandLayout":
+      return {
+        id: buildSectionId("ctaBand", index, anchor),
+        _type: "ctaBand",
+        anchor,
+        headline: rawSection.headline,
+        subheadline: normalizeOptionalString(rawSection.subheadline),
+        primaryCta: mapCallToAction(rawSection.ctaButton),
+      };
+    case "PageBuilderSectionsTestimonialLayout":
+      return {
+        id: buildSectionId("testimonial", index, anchor),
+        _type: "testimonial",
+        anchor,
+        quote: rawSection.quote,
+        author: rawSection.author,
+        role: normalizeOptionalString(rawSection.role),
+        company: normalizeOptionalString(rawSection.company),
+        image: mapMediaAsset(rawSection.image?.node),
+      };
+    case "PageBuilderSectionsUseCasesLayout":
+      return {
+        id: buildSectionId("useCases", index, anchor),
+        _type: "useCases",
+        anchor,
+        headline: normalizeOptionalString(rawSection.headline),
+        items: rawSection.items.map(mapFeatureItem),
+      };
+    case "PageBuilderSectionsHowItWorksLayout":
+      return {
+        id: buildSectionId("howItWorks", index, anchor),
+        _type: "howItWorks",
+        anchor,
+        headline: normalizeOptionalString(rawSection.headline),
+        steps: rawSection.steps.map(mapHowItWorksStep),
+      };
+    case "PageBuilderSectionsStatsStripLayout":
+      return {
+        id: buildSectionId("statsStrip", index, anchor),
+        _type: "statsStrip",
+        anchor,
+        stats: rawSection.stats.map(mapStat),
+      };
+    case "PageBuilderSectionsFormSectionLayout":
+      return {
+        id: buildSectionId("formSection", index, anchor),
+        _type: "formSection",
+        anchor,
+        formType: rawSection.formType,
+        headline: rawSection.headline,
+        body: normalizeOptionalString(rawSection.body),
+      };
   }
-
-  const richTextSection = RawRichTextSectionSchema.safeParse(rawSection);
-
-  if (richTextSection.success) {
-    const anchor = normalizeOptionalString(richTextSection.data.anchor);
-
-    return {
-      id: buildSectionId("richText", index, anchor),
-      _type: "richText",
-      anchor,
-      html: richTextSection.data.html,
-    };
-  }
-
-  logDroppedSection(
-    index,
-    typeof rawSection.__typename === "string" ? rawSection.__typename : undefined,
-  );
-
-  return null;
 }
 
 export function mapWordPressPageResponse(
@@ -277,15 +449,12 @@ export function mapWordPressPageResponse(
 ): Page | null {
   const parsedResponse = rawPageResponseSchema.safeParse(response);
 
-if (!parsedResponse.success) {
-  // CRACK OPEN THE ZOD ERROR
-  console.error("ZOD ISSUES:", JSON.stringify(parsedResponse.error.issues, null, 2));
-  
-  throw new WordPressMappingError(
-    "WordPress response failed validation.",
-    parsedResponse.error.issues
-  );
-}
+  if (!parsedResponse.success) {
+    throw new WordPressMappingError(
+      "WordPress response failed validation.",
+      parsedResponse.error.issues,
+    );
+  }
 
   if (!parsedResponse.data.page) {
     return null;
@@ -294,15 +463,18 @@ if (!parsedResponse.success) {
   const rawPage = parsedResponse.data.page;
   const slug = normalizeUriToSlug(rawPage.uri);
   const rawSections = rawPage.pageBuilder?.sections ?? [];
-  const sections = rawSections.reduce<PageSection[]>((accumulator, rawSection, index) => {
-    const mappedSection = mapSection(rawSection, index);
+  const sections = rawSections.reduce<PageSection[]>(
+    (accumulator, rawSection, index) => {
+      const mappedSection = mapSection(rawSection, index);
 
-    if (mappedSection) {
-      accumulator.push(mappedSection);
-    }
+      if (mappedSection) {
+        accumulator.push(mappedSection);
+      }
 
-    return accumulator;
-  }, []);
+      return accumulator;
+    },
+    [],
+  );
 
   return {
     title: rawPage.title,

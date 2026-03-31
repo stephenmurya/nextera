@@ -4,7 +4,11 @@ import { notFound } from "next/navigation";
 import { DraftIndicator } from "@/components/DraftIndicator";
 import { SectionRenderer } from "@/components/SectionRenderer";
 import { env } from "@/lib/env";
-import { getPageBySlug, normalizeSlug } from "@/lib/wordpress/client";
+import {
+  getPageByUri,
+  normalizeSlug,
+  normalizeWordPressUri,
+} from "@/lib/wordpress/client";
 import type { Page } from "@/types/cms";
 
 type MarketingPageProps = {
@@ -43,20 +47,24 @@ function pageToMetadata(page: Page): Metadata {
   };
 }
 
-async function resolveSlug(paramsPromise: MarketingPageProps["params"]) {
+async function resolveRouteTarget(paramsPromise: MarketingPageProps["params"]) {
   const { slug } = await paramsPromise;
+  const normalizedSlug = normalizeSlug(slug);
 
-  return normalizeSlug(slug);
+  return {
+    slug: normalizedSlug,
+    uri: normalizeWordPressUri(slug),
+  };
 }
 
 export async function generateMetadata({
   params,
 }: MarketingPageProps): Promise<Metadata> {
-  const slug = await resolveSlug(params);
+  const { slug, uri } = await resolveRouteTarget(params);
   const { isEnabled } = await draftMode();
 
   try {
-    const page = await getPageBySlug(slug, isEnabled);
+    const page = await getPageByUri(uri, isEnabled);
 
     if (!page) {
       return {
@@ -77,36 +85,18 @@ export async function generateMetadata({
 }
 
 export default async function MarketingPage({ params }: MarketingPageProps) {
-  const slug = await resolveSlug(params);
+  const { uri } = await resolveRouteTarget(params);
   const { isEnabled } = await draftMode();
-  const page = await getPageBySlug(slug, isEnabled);
+  const page = await getPageByUri(uri, isEnabled);
 
   if (!page) {
     notFound();
   }
 
   return (
-    <>
+    <main className="flex-1 w-full">
       {isEnabled ? <DraftIndicator /> : null}
-      <div className="space-y-10">
-        <header className="rounded-[2rem] border border-border/80 bg-surface/95 px-8 py-10 shadow-[0_24px_80px_rgba(33,28,22,0.08)]">
-          <div className="max-w-3xl space-y-4">
-            <span className="rounded-full border border-border/80 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-muted">
-              Headless Marketing Route
-            </span>
-            <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                {page.title}
-              </h1>
-              <p className="text-base leading-7 text-muted sm:text-lg">
-                This route is rendering WordPress-backed section data through the
-                normalized CMS pipeline.
-              </p>
-            </div>
-          </div>
-        </header>
-        <SectionRenderer sections={page.sections} />
-      </div>
-    </>
+      <SectionRenderer sections={page.sections} />
+    </main>
   );
 }

@@ -100,6 +100,12 @@ export function toWordPressUri(slug: string) {
   return slug ? `/${slug}/` : "/";
 }
 
+export function normalizeWordPressUri(
+  input: string | readonly string[] | null | undefined,
+) {
+  return toWordPressUri(normalizeSlug(input));
+}
+
 export function toPageCacheTag(slug: string) {
   return slug ? `page-${slug}` : "page-home";
 }
@@ -109,13 +115,11 @@ export function getWordPressCacheTags(slug: string) {
 }
 
 export function buildGetPageByUriVariables(
-  slugInput: string,
+  input: string,
   isDraft = false,
 ): GetPageByUriVariables {
-  const slug = normalizeSlug(slugInput);
-
   return {
-    uri: toWordPressUri(slug),
+    uri: normalizeWordPressUri(input),
     asPreview: isDraft,
   };
 }
@@ -254,9 +258,16 @@ export async function getPageBySlug(
   slugInput: string,
   isDraft = false,
 ): Promise<Page | null> {
-  const slug = normalizeSlug(slugInput);
+  return getPageByUri(slugInput, isDraft);
+}
+
+export async function getPageByUri(
+  uriInput: string,
+  isDraft = false,
+): Promise<Page | null> {
+  const slug = normalizeSlug(uriInput);
   const mode: WordPressRequestMode = isDraft ? "draft" : "published";
-  const variables = buildGetPageByUriVariables(slug, isDraft);
+  const variables = buildGetPageByUriVariables(uriInput, isDraft);
 
   try {
     const client = createWordPressClient({

@@ -24,15 +24,15 @@ export const GET_PAGE_BY_URI = gql`
             eyebrow
             headline
             body
-            primaryCta: primarycta {
-              label
-              href: herf
-            }
-            secondaryCta: secondarycta {
+            primaryCta {
               label
               href
             }
-            backgroundImage: backgroundimage {
+            secondaryCta {
+              label
+              href
+            }
+            backgroundImage {
               node {
                 sourceUrl
                 altText
@@ -43,7 +43,7 @@ export const GET_PAGE_BY_URI = gql`
             anchor
             headline
             intro
-            items {
+            items: featureGridItems {
               title
               description
               icon
@@ -52,6 +52,67 @@ export const GET_PAGE_BY_URI = gql`
           ... on PageBuilderSectionsRichTextLayout {
             anchor
             html
+          }
+          ... on PageBuilderSectionsFaqLayout {
+            anchor
+            headline
+            faqs {
+              question
+              answer
+            }
+          }
+          ... on PageBuilderSectionsCtaBandLayout {
+            anchor
+            headline
+            subheadline
+            ctaButton {
+              label
+              href
+            }
+          }
+          ... on PageBuilderSectionsTestimonialLayout {
+            anchor
+            quote
+            author
+            role
+            company
+            image {
+              node {
+                sourceUrl
+                altText
+              }
+            }
+          }
+          ... on PageBuilderSectionsUseCasesLayout {
+            anchor
+            headline
+            items: useCaseItems {
+              title
+              description
+              icon
+            }
+          }
+          ... on PageBuilderSectionsHowItWorksLayout {
+            anchor
+            headline
+            steps {
+              stepNumber
+              title
+              description
+            }
+          }
+          ... on PageBuilderSectionsStatsStripLayout {
+            anchor
+            stats {
+              value
+              label
+            }
+          }
+          ... on PageBuilderSectionsFormSectionLayout {
+            anchor
+            formType
+            headline
+            body
           }
         }
       }

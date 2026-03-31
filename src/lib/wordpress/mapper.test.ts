@@ -63,7 +63,7 @@ const validResponse = {
           ],
         },
         {
-          __typename: "PageBuilderSectionsRichtextLayout",
+          __typename: "PageBuilderSectionsRichTextLayout",
           anchor: "details",
           html: "<p>Rich body content from WordPress.</p>",
         },
@@ -211,6 +211,183 @@ describe("mapWordPressPageResponse", () => {
     });
   });
 
+  it("maps the expanded flexible content layouts into normalized sections", () => {
+    const response = {
+      page: {
+        title: "Expanded Sections",
+        slug: "expanded-sections",
+        uri: "/expanded-sections/",
+        seo: null,
+        pageBuilder: {
+          sections: [
+            {
+              __typename: "PageBuilderSectionsFaqLayout",
+              anchor: "faq",
+              headline: "Questions, answered",
+              faqs: [
+                {
+                  question: "Does it support team handoff?",
+                  answer: "Yes, with shared lead visibility.",
+                },
+              ],
+            },
+            {
+              __typename: "PageBuilderSectionsCtaBandLayout",
+              anchor: "cta",
+              headline: "See the CRM in action",
+              subheadline: "Book a walkthrough built around your workflow.",
+              ctaButton: {
+                label: "Request demo",
+                href: "/demo",
+              },
+            },
+            {
+              __typename: "PageBuilderSectionsTestimonialLayout",
+              anchor: "testimonial",
+              quote: "We stopped losing high-intent leads.",
+              author: "Ada Lovelace",
+              role: "Broker Owner",
+              company: "Analytical Estates",
+              image: {
+                node: {
+                  sourceUrl: "https://example.com/testimonial.jpg",
+                  altText: "Ada Lovelace portrait",
+                },
+              },
+            },
+            {
+              __typename: "PageBuilderSectionsUseCasesLayout",
+              anchor: "use-cases",
+              headline: "Built for the way agents work",
+              items: [
+                {
+                  title: "Lead follow-up",
+                  description: "Keep response time tight.",
+                  icon: "route",
+                },
+              ],
+            },
+            {
+              __typename: "PageBuilderSectionsHowItWorksLayout",
+              anchor: "how-it-works",
+              headline: "How it works",
+              steps: [
+                {
+                  stepNumber: 1,
+                  title: "Capture",
+                  description: "Bring inbound leads into one place.",
+                },
+              ],
+            },
+            {
+              __typename: "PageBuilderSectionsStatsStripLayout",
+              anchor: "stats",
+              stats: [
+                {
+                  value: "3x",
+                  label: "faster follow-up",
+                },
+              ],
+            },
+            {
+              __typename: "PageBuilderSectionsFormSectionLayout",
+              anchor: "form",
+              formType: "demo",
+              headline: "Book your demo",
+              body: "Tell us about your market and team.",
+            },
+          ],
+        },
+      },
+    };
+
+    const page = mapWordPressPageResponse(response, { siteUrl });
+
+    expect(page?.sections).toEqual([
+      {
+        id: "faq",
+        _type: "faq",
+        anchor: "faq",
+        headline: "Questions, answered",
+        faqs: [
+          {
+            question: "Does it support team handoff?",
+            answer: "Yes, with shared lead visibility.",
+          },
+        ],
+      },
+      {
+        id: "cta",
+        _type: "ctaBand",
+        anchor: "cta",
+        headline: "See the CRM in action",
+        subheadline: "Book a walkthrough built around your workflow.",
+        primaryCta: {
+          label: "Request demo",
+          href: "/demo",
+        },
+      },
+      {
+        id: "testimonial",
+        _type: "testimonial",
+        anchor: "testimonial",
+        quote: "We stopped losing high-intent leads.",
+        author: "Ada Lovelace",
+        role: "Broker Owner",
+        company: "Analytical Estates",
+        image: {
+          url: "https://example.com/testimonial.jpg",
+          alt: "Ada Lovelace portrait",
+        },
+      },
+      {
+        id: "use-cases",
+        _type: "useCases",
+        anchor: "use-cases",
+        headline: "Built for the way agents work",
+        items: [
+          {
+            title: "Lead follow-up",
+            description: "Keep response time tight.",
+            icon: "route",
+          },
+        ],
+      },
+      {
+        id: "how-it-works",
+        _type: "howItWorks",
+        anchor: "how-it-works",
+        headline: "How it works",
+        steps: [
+          {
+            stepNumber: "1",
+            title: "Capture",
+            description: "Bring inbound leads into one place.",
+          },
+        ],
+      },
+      {
+        id: "stats",
+        _type: "statsStrip",
+        anchor: "stats",
+        stats: [
+          {
+            value: "3x",
+            label: "faster follow-up",
+          },
+        ],
+      },
+      {
+        id: "form",
+        _type: "formSection",
+        anchor: "form",
+        formType: "demo",
+        headline: "Book your demo",
+        body: "Tell us about your market and team.",
+      },
+    ]);
+  });
+
   it("drops unknown or malformed sections without crashing the page", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
       return undefined;
@@ -227,7 +404,7 @@ describe("mapWordPressPageResponse", () => {
               __typename: "PageBuilderSectionsUnknownLayout",
             },
             {
-              __typename: "PageBuilderSectionsRichtextLayout",
+              __typename: "PageBuilderSectionsRichTextLayout",
               anchor: "bad-rich-text",
             },
           ],

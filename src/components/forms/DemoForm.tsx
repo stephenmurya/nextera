@@ -6,6 +6,12 @@ import {
   type DemoFormValues,
 } from "@/lib/validations/forms";
 
+type DemoFormProps = {
+  description?: string;
+  embedded?: boolean;
+  title?: string;
+};
+
 const defaultValues: DemoFormValues = {
   formType: "demo",
   first_name: "",
@@ -19,14 +25,19 @@ const defaultValues: DemoFormValues = {
   bot_field: "",
 };
 
-export function DemoForm() {
+export function DemoForm({
+  description = "Schedule a tailored walkthrough to see how the CRM can improve lead response times and pipeline visibility.",
+  embedded = false,
+  title = "Book a personalized demo",
+}: DemoFormProps) {
   return (
     <LeadCaptureForm
       defaultValues={defaultValues}
-      description="Schedule a tailored walkthrough to see how the CRM can improve lead response times and pipeline visibility."
+      description={description}
+      embedded={embedded}
       schema={demoFormSchema}
       submitLabel="Request a demo"
-      title="Book a personalized demo"
+      title={title}
     />
   );
 }

@@ -1,7 +1,13 @@
 "use client";
 
-import { ContactFormValues, contactFormSchema } from "@/lib/validations/forms";
 import { LeadCaptureForm } from "@/components/forms/LeadCaptureForm";
+import { ContactFormValues, contactFormSchema } from "@/lib/validations/forms";
+
+type ContactFormProps = {
+  description?: string;
+  embedded?: boolean;
+  title?: string;
+};
 
 const defaultValues: ContactFormValues = {
   formType: "contact",
@@ -16,14 +22,19 @@ const defaultValues: ContactFormValues = {
   bot_field: "",
 };
 
-export function ContactForm() {
+export function ContactForm({
+  description = "Send your questions to our team and we'll follow up with the right next step for your workflow.",
+  embedded = false,
+  title = "Talk to our team",
+}: ContactFormProps) {
   return (
     <LeadCaptureForm
       defaultValues={defaultValues}
-      description="Send your questions to our team and we’ll follow up with the right next step for your workflow."
+      description={description}
+      embedded={embedded}
       schema={contactFormSchema}
       submitLabel="Contact sales"
-      title="Talk to our team"
+      title={title}
     />
   );
 }
