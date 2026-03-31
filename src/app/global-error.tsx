@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import "./globals.css";
 
 type GlobalErrorProps = {
@@ -56,15 +57,17 @@ export default function GlobalError({
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
-                  className="rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]"
+                  className={getButtonClassName("primary", "sm")}
                   onClick={handleRetry}
+                  style={getButtonStyle("primary")}
                   type="button"
                 >
                   Try Again
                 </button>
                 <Link
-                  className="rounded-full border border-border bg-white px-5 py-3 text-sm font-semibold text-foreground transition hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]"
+                  className={getButtonClassName("secondary", "sm")}
                   href="/"
+                  style={getButtonStyle("secondary")}
                 >
                   Back Home
                 </Link>

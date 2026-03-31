@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 
 export default function ThankYouPage() {
   return (
@@ -19,14 +20,16 @@ export default function ThankYouPage() {
           </div>
           <div className="flex flex-col items-center justify-center gap-3 pt-4 sm:flex-row">
             <Link
-              className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]"
+              className={getButtonClassName("primary")}
               href="/"
+              style={getButtonStyle("primary")}
             >
               Return home
             </Link>
             <Link
-              className="inline-flex items-center justify-center rounded-full border border-border bg-white px-6 py-3 text-sm font-semibold text-foreground transition hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]"
+              className={getButtonClassName("secondary")}
               href="/"
+              style={getButtonStyle("secondary")}
             >
               Explore the site
             </Link>

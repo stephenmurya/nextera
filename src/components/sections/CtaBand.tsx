@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { CtaBandSection as CtaBandSectionData } from "@/types/cms";
 
 export function CtaBand({
@@ -34,8 +35,9 @@ export function CtaBand({
           {primaryCta ? (
             <div className="shrink-0">
               <Link
-                className="inline-flex items-center justify-center rounded-full bg-[#f4ede4] px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#2c241b]"
+                className={getButtonClassName("cream")}
                 href={primaryCta.href}
+                style={getButtonStyle("cream")}
               >
                 {primaryCta.label}
               </Link>

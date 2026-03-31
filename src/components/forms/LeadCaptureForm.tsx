@@ -11,6 +11,7 @@ import {
 } from "react-hook-form";
 import type { ZodType } from "zod";
 import { FormInput } from "@/components/forms/FormInput";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { SubmissionPayload } from "@/lib/validations/forms";
 
 type LeadCaptureFormProps<TFormValues extends SubmissionPayload> = {
@@ -181,14 +182,19 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
             this app.
           </p>
           <button
-            className="inline-flex items-center justify-center gap-3 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3] disabled:cursor-not-allowed disabled:opacity-70"
+            className={getButtonClassName(
+              "primary",
+              "md",
+              "gap-3 disabled:cursor-not-allowed disabled:opacity-70",
+            )}
             disabled={isSubmitting}
+            style={getButtonStyle("primary")}
             type="submit"
           >
             {isSubmitting ? (
               <span
                 aria-hidden="true"
-                className="h-4 w-4 animate-spin rounded-full border-2 border-background/30 border-t-background"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
               />
             ) : null}
             <span>{isSubmitting ? "Submitting..." : submitLabel}</span>

@@ -1,12 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { HeroSection as HeroSectionData } from "@/types/cms";
-
-const primaryCtaClassName =
-  "inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]";
-
-const secondaryCtaClassName =
-  "inline-flex items-center justify-center rounded-full border border-border bg-white/80 px-6 py-3 text-sm font-semibold text-foreground transition hover:border-foreground hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]";
 
 export function Hero({
   anchor,
@@ -62,14 +57,19 @@ export function Hero({
                 ].join(" ")}
               >
                 {primaryCta ? (
-                  <Link className={primaryCtaClassName} href={primaryCta.href}>
+                  <Link
+                    className={getButtonClassName("primary")}
+                    href={primaryCta.href}
+                    style={getButtonStyle("primary")}
+                  >
                     {primaryCta.label}
                   </Link>
                 ) : null}
                 {secondaryCta ? (
                   <Link
-                    className={secondaryCtaClassName}
+                    className={getButtonClassName("secondary")}
                     href={secondaryCta.href}
+                    style={getButtonStyle("secondary")}
                   >
                     {secondaryCta.label}
                   </Link>

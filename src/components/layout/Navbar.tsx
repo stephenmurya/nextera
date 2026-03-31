@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 
 const navLinkClassName =
   "text-sm font-medium text-foreground/80 transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
@@ -12,28 +13,33 @@ export function Navbar() {
             className="text-lg font-extrabold tracking-[-0.04em] text-foreground sm:text-xl"
             href="/"
           >
-            EliteCRM
+            AgentFlow
           </Link>
           <nav
             aria-label="Primary"
             className="hidden items-center gap-6 md:flex lg:gap-8"
           >
-            <Link className={navLinkClassName} href="/#features">
-              Platform
+            <Link className={navLinkClassName} href="/">
+              Home
             </Link>
-            <Link className={navLinkClassName} href="/#why-us">
-              Why Headless?
+            <Link className={navLinkClassName} href="/early-access">
+              Early Access
             </Link>
-            <Link className={navLinkClassName} href="/demo">
-              View Demo
+            <Link className={navLinkClassName} href="/contact">
+              Contact
             </Link>
           </nav>
         </div>
         <Link
-          className="inline-flex items-center justify-center rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-          href="/#waitlist"
+          className={getButtonClassName(
+            "primary",
+            "sm",
+            "focus-visible:ring-offset-white",
+          )}
+          href="/demo"
+          style={getButtonStyle("primary")}
         >
-          Join Waitlist
+          Request Demo
         </Link>
       </div>
     </header>

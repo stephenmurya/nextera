@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 
 type MarketingErrorProps = {
   error: Error & { digest?: string };
@@ -27,15 +28,17 @@ export default function MarketingError({
       </div>
       <div className="flex flex-wrap gap-3">
         <button
-          className="rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-90"
+          className={getButtonClassName("primary", "sm")}
           onClick={() => unstable_retry()}
+          style={getButtonStyle("primary")}
           type="button"
         >
           Try Again
         </button>
         <Link
-          className="rounded-full border border-border bg-white px-5 py-3 text-sm font-semibold text-foreground transition hover:border-foreground"
+          className={getButtonClassName("secondary", "sm")}
           href="/"
+          style={getButtonStyle("secondary")}
         >
           Back Home
         </Link>
