@@ -36,7 +36,10 @@ describe("POST /api/forms/submit", () => {
     );
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ success: true });
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      redirectTo: "/thank-you",
+    });
     expect(submitToHubSpotMock).not.toHaveBeenCalled();
   });
 
@@ -47,6 +50,11 @@ describe("POST /api/forms/submit", () => {
         first_name: "",
         last_name: "",
         email: "bad-email",
+        market_or_city: "",
+        team_size: "",
+        current_workflow: "",
+        biggest_pain_point: "",
+        interest_type: "",
         company_name: "",
       }),
     );
@@ -74,7 +82,13 @@ describe("POST /api/forms/submit", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
+          phone: "+1 (555) 123-4567",
           company_name: "Analytical Engines Ltd.",
+          market_or_city: "Lagos",
+          team_size: "2_5_agents",
+          current_workflow: "We route leads manually from inbox to spreadsheet.",
+          biggest_pain_point: "Follow-up consistency across the team.",
+          interest_type: "join_waitlist",
           landing_page_url: "https://example.com/fallback",
           bot_field: "",
         },
@@ -86,14 +100,23 @@ describe("POST /api/forms/submit", () => {
     );
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ success: true });
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      redirectTo: "/thank-you",
+    });
     expect(submitToHubSpotMock).toHaveBeenCalledWith(
       expect.objectContaining({
         formType: "waitlist",
         first_name: "Ada",
         last_name: "Lovelace",
         email: "ada@example.com",
+        phone: "+1 (555) 123-4567",
         company_name: "Analytical Engines Ltd.",
+        market_or_city: "Lagos",
+        team_size: "2_5_agents",
+        current_workflow: "We route leads manually from inbox to spreadsheet.",
+        biggest_pain_point: "Follow-up consistency across the team.",
+        interest_type: "join_waitlist",
       }),
       "waitlist-guid",
       "203.0.113.1",

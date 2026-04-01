@@ -1,7 +1,11 @@
-import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
+import type {
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
-type SelectOption = {
+export type SelectOption = {
   label: string;
   value: string;
 };
@@ -36,7 +40,15 @@ type SelectInputProps = BaseFormInputProps &
     placeholderOption?: string;
   };
 
-type FormInputProps = TextInputProps | SelectInputProps;
+type TextareaInputProps = BaseFormInputProps &
+  Pick<
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    "disabled" | "placeholder" | "readOnly" | "rows"
+  > & {
+    as: "textarea";
+  };
+
+type FormInputProps = TextInputProps | SelectInputProps | TextareaInputProps;
 
 const baseFieldClassName =
   "w-full rounded-[1.35rem] border border-black/12 bg-white/92 px-4 py-3.5 text-sm text-foreground shadow-[0_12px_32px_rgba(17,17,17,0.04)] transition placeholder:text-muted/70 focus:border-black/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f8f6ef] disabled:cursor-not-allowed disabled:bg-[#f4efe8] disabled:text-[#8f8579]";
@@ -73,6 +85,39 @@ export function FormInput(props: FormInputProps) {
             </option>
           ))}
         </select>
+        {error ? (
+          <p
+            className="mt-1 text-sm text-[#b74431] transition-colors"
+            id={describedBy}
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (props.as === "textarea") {
+    return (
+      <div className="space-y-2">
+        <label
+          className="text-sm font-semibold tracking-[0.01em] text-foreground"
+          htmlFor={id}
+        >
+          {label}
+        </label>
+        <textarea
+          {...registration}
+          aria-describedby={describedBy}
+          aria-invalid={error ? "true" : "false"}
+          className={`${baseFieldClassName} min-h-[9rem] resize-y`}
+          disabled={props.disabled}
+          id={id}
+          placeholder={props.placeholder}
+          readOnly={props.readOnly}
+          rows={props.rows ?? 5}
+        />
         {error ? (
           <p
             className="mt-1 text-sm text-[#b74431] transition-colors"

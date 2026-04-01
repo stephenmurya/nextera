@@ -5,12 +5,14 @@ import { DraftIndicator } from "@/components/DraftIndicator";
 import { PageViewTracker } from "@/components/observability/PageViewTracker";
 import { SectionRenderer } from "@/components/SectionRenderer";
 import { env } from "@/lib/env";
+import { formatDocumentTitle, resolveSiteName } from "@/lib/site";
 import {
+  getGlobalSettings,
   getPageByUri,
   normalizeSlug,
   normalizeWordPressUri,
 } from "@/lib/wordpress/client";
-import type { Page } from "@/types/cms";
+import type { GlobalSettings, Page } from "@/types/cms";
 
 type MarketingPageProps = {
   params: Promise<{
@@ -24,16 +26,42 @@ type MarketingPageContentProps = {
   template: string;
 };
 
+const emptyGlobalSettings: GlobalSettings = {
+  siteName: undefined,
+  defaultSeoTitle: undefined,
+  defaultSeoDescription: undefined,
+  defaultSeoImage: undefined,
+  twitterHandle: undefined,
+  footerContactData: undefined,
+  headerNav: [],
+  footerNav: [],
+  socialLinks: [],
+  globalCta: null,
+};
+
 function buildCanonicalUrl(slug: string): string {
   const pathname = slug ? `/${slug}` : "/";
 
   return new URL(pathname, env.NEXT_PUBLIC_SITE_URL).toString();
 }
 
-function pageToMetadata(page: Page): Metadata {
+function resolveMetadataImage(page: Page, globalSettings: GlobalSettings) {
+  return page.seo.openGraph.image ?? globalSettings.defaultSeoImage;
+}
+
+function pageToMetadata(page: Page, globalSettings: GlobalSettings): Metadata {
+  const siteName = resolveSiteName(globalSettings.siteName);
+  const description =
+    page.seo.description ?? globalSettings.defaultSeoDescription;
+  const openGraphDescription =
+    page.seo.openGraph.description ?? description;
+  const image = resolveMetadataImage(page, globalSettings);
+  const documentTitle = formatDocumentTitle(page.seo.title, siteName);
+  const socialTitle = formatDocumentTitle(page.seo.openGraph.title, siteName);
+
   return {
-    title: page.seo.title,
-    description: page.seo.description,
+    title: documentTitle,
+    description,
     robots: page.noindex
       ? {
           index: false,
@@ -44,18 +72,69 @@ function pageToMetadata(page: Page): Metadata {
       canonical: page.seo.canonicalUrl,
     },
     openGraph: {
-      title: page.seo.openGraph.title,
-      description: page.seo.openGraph.description,
+      title: socialTitle,
+      description: openGraphDescription,
+      siteName,
       type: "website",
       url: page.seo.canonicalUrl,
-      images: page.seo.openGraph.image
+      images: image
         ? [
             {
-              url: page.seo.openGraph.image.url,
-              alt: page.seo.openGraph.image.alt,
+              url: image.url,
+              alt: image.alt,
             },
           ]
         : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      site: globalSettings.twitterHandle,
+      creator: globalSettings.twitterHandle,
+      title: socialTitle,
+      description: openGraphDescription,
+      images: image ? [image.url] : undefined,
+    },
+  };
+}
+
+function buildFallbackMetadata(
+  slug: string,
+  globalSettings: GlobalSettings,
+): Metadata {
+  const siteName = resolveSiteName(globalSettings.siteName);
+  const title = formatDocumentTitle(globalSettings.defaultSeoTitle, siteName);
+  const description = globalSettings.defaultSeoDescription;
+  const image = globalSettings.defaultSeoImage;
+  const canonicalUrl = buildCanonicalUrl(slug);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      siteName,
+      type: "website",
+      url: canonicalUrl,
+      images: image
+        ? [
+            {
+              url: image.url,
+              alt: image.alt,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      site: globalSettings.twitterHandle,
+      creator: globalSettings.twitterHandle,
+      title,
+      description,
+      images: image ? [image.url] : undefined,
     },
   };
 }
@@ -89,26 +168,20 @@ export async function generateMetadata({
 }: MarketingPageProps): Promise<Metadata> {
   const { slug, uri } = await resolveRouteTarget(params);
   const { isEnabled } = await draftMode();
+  const [pageResult, globalSettingsResult] = await Promise.allSettled([
+    getPageByUri(uri, isEnabled),
+    getGlobalSettings(isEnabled),
+  ]);
+  const globalSettings =
+    globalSettingsResult.status === "fulfilled"
+      ? globalSettingsResult.value
+      : emptyGlobalSettings;
 
-  try {
-    const page = await getPageByUri(uri, isEnabled);
-
-    if (!page) {
-      return {
-        alternates: {
-          canonical: buildCanonicalUrl(slug),
-        },
-      };
-    }
-
-    return pageToMetadata(page);
-  } catch {
-    return {
-      alternates: {
-        canonical: buildCanonicalUrl(slug),
-      },
-    };
+  if (pageResult.status !== "fulfilled" || !pageResult.value) {
+    return buildFallbackMetadata(slug, globalSettings);
   }
+
+  return pageToMetadata(pageResult.value, globalSettings);
 }
 
 export default async function MarketingPage({ params }: MarketingPageProps) {

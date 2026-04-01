@@ -7,6 +7,8 @@ import {
 import type { NavigationLink, SocialLink } from "@/types/cms";
 
 type FooterProps = {
+  siteName: string;
+  footerContactData?: string;
   footerNav: NavigationLink[];
   socialLinks: SocialLink[];
 };
@@ -14,7 +16,12 @@ type FooterProps = {
 const footerLinkClassName =
   "text-sm text-white/70 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]";
 
-export function Footer({ footerNav, socialLinks }: FooterProps) {
+export function Footer({
+  siteName,
+  footerContactData,
+  footerNav,
+  socialLinks,
+}: FooterProps) {
   return (
     <PanoramaFullBleedSection className="mt-auto bg-[#111111] text-white">
       <div
@@ -27,7 +34,7 @@ export function Footer({ footerNav, socialLinks }: FooterProps) {
           <div className="space-y-5">
             <div className="space-y-4">
               <p className="text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl">
-                AgentFlow
+                {siteName}
               </p>
               <p className="max-w-xl text-base leading-8 text-white/68">
                 Precision-built CRM infrastructure for modern real estate teams.
@@ -35,6 +42,12 @@ export function Footer({ footerNav, socialLinks }: FooterProps) {
                 relationships across the entire property journey.
               </p>
             </div>
+            {footerContactData ? (
+              <div
+                className="max-w-xl text-sm leading-7 text-white/62 [&_a]:text-white [&_a]:underline [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_p]:my-0"
+                dangerouslySetInnerHTML={{ __html: footerContactData }}
+              />
+            ) : null}
           </div>
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-4">
@@ -81,7 +94,7 @@ export function Footer({ footerNav, socialLinks }: FooterProps) {
           </div>
         </div>
         <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs uppercase tracking-[0.22em] text-white/42 sm:flex-row sm:items-center sm:justify-between">
-          <p>AgentFlow Marketing System</p>
+          <p>{siteName} Marketing System</p>
           <p>Built for conversion, clarity, and control.</p>
         </div>
       </PanoramaInner>

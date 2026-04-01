@@ -16,10 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
-  title: "Real Estate CRM",
-  description: "Headless marketing foundation for a Real Estate CRM.",
+  title: "AgentFlow",
+  description: "CRM infrastructure for modern real estate teams.",
   openGraph: {
-    siteName: "Real Estate CRM",
+    siteName: "AgentFlow",
     type: "website",
   },
 };

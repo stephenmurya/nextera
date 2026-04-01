@@ -8,11 +8,12 @@ const navLinkClassName =
   "text-sm font-medium text-white/76 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]";
 
 type NavbarProps = {
+  siteName: string;
   headerNav: NavigationLink[];
   globalCta: CallToAction | null;
 };
 
-export function Navbar({ headerNav, globalCta }: NavbarProps) {
+export function Navbar({ siteName, headerNav, globalCta }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/42 text-white backdrop-blur-md">
       <PanoramaInner className="py-4 sm:py-5">
@@ -22,7 +23,7 @@ export function Navbar({ headerNav, globalCta }: NavbarProps) {
               className="text-xl font-semibold tracking-[-0.05em] text-white sm:text-[1.35rem]"
               href="/"
             >
-              AgentFlow
+              {siteName}
             </Link>
           </div>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:justify-end">

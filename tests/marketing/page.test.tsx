@@ -5,6 +5,7 @@ import { vi } from "vitest";
 const marketingPageMocks = vi.hoisted(() => ({
   draftMode: vi.fn(),
   getPageByUri: vi.fn(),
+  getGlobalSettings: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -38,6 +39,7 @@ vi.mock("@/lib/wordpress/client", async () => {
   return {
     ...actual,
     getPageByUri: marketingPageMocks.getPageByUri,
+    getGlobalSettings: marketingPageMocks.getGlobalSettings,
   };
 });
 
@@ -63,11 +65,29 @@ const mockPage = {
   sections: [],
 };
 
+const mockGlobalSettings = {
+  siteName: "AgentFlow",
+  defaultSeoTitle: "AgentFlow",
+  defaultSeoDescription: "Default SEO description",
+  defaultSeoImage: {
+    url: "https://example.com/default-og.jpg",
+    alt: "Default social preview",
+  },
+  twitterHandle: "@agentflow",
+  footerContactData: "<p>hello@example.com</p>",
+  headerNav: [],
+  footerNav: [],
+  socialLinks: [],
+  globalCta: null,
+};
+
 describe("marketing page draft indicator", () => {
   beforeEach(() => {
     marketingPageMocks.draftMode.mockReset();
     marketingPageMocks.getPageByUri.mockReset();
+    marketingPageMocks.getGlobalSettings.mockReset();
     marketingPageMocks.getPageByUri.mockResolvedValue(mockPage);
+    marketingPageMocks.getGlobalSettings.mockResolvedValue(mockGlobalSettings);
     vi.mocked(notFound).mockClear();
   });
 
@@ -176,6 +196,55 @@ describe("marketing page draft indicator", () => {
     expect(metadata.robots).toEqual({
       index: false,
       follow: false,
+    });
+  });
+
+  it("builds SEO metadata with global fallbacks and twitter tags", async () => {
+    marketingPageMocks.draftMode.mockResolvedValue({
+      disable: vi.fn(),
+      enable: vi.fn(),
+      isEnabled: false,
+    });
+    marketingPageMocks.getPageByUri.mockResolvedValue({
+      ...mockPage,
+      seo: {
+        canonicalUrl: "https://example.com/about",
+        description: undefined,
+        openGraph: {
+          description: undefined,
+          image: undefined,
+          title: "About",
+        },
+        title: "About",
+      },
+    });
+
+    const metadata = await generateMetadata({
+      params: Promise.resolve({
+        slug: ["about"],
+      }),
+    });
+
+    expect(metadata.title).toBe("About | AgentFlow");
+    expect(metadata.description).toBe("Default SEO description");
+    expect(metadata.openGraph).toMatchObject({
+      title: "About | AgentFlow",
+      description: "Default SEO description",
+      siteName: "AgentFlow",
+      images: [
+        {
+          url: "https://example.com/default-og.jpg",
+          alt: "Default social preview",
+        },
+      ],
+    });
+    expect(metadata.twitter).toEqual({
+      card: "summary_large_image",
+      site: "@agentflow",
+      creator: "@agentflow",
+      title: "About | AgentFlow",
+      description: "Default SEO description",
+      images: ["https://example.com/default-og.jpg"],
     });
   });
 });

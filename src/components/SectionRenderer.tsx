@@ -4,6 +4,7 @@ import { FeatureGrid } from "@/components/sections/FeatureGrid";
 import { FormSection } from "@/components/sections/FormSection";
 import { Hero } from "@/components/sections/Hero";
 import { HowItWorks } from "@/components/sections/HowItWorks";
+import { ProblemSolutionSection } from "@/components/sections/ProblemSolutionSection";
 import { RichText } from "@/components/sections/RichText";
 import { StatsStrip } from "@/components/sections/StatsStrip";
 import { Testimonial } from "@/components/sections/Testimonial";
@@ -43,6 +44,8 @@ export function SectionRenderer({ sections }: SectionRendererProps) {
             return <FeatureGrid key={section.id} {...section} />;
           case "richText":
             return <RichText key={section.id} {...section} />;
+          case "problemSolution":
+            return <ProblemSolutionSection key={section.id} {...section} />;
           case "faq":
             return <Faq key={section.id} {...section} />;
           case "ctaBand":

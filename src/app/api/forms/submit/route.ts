@@ -8,6 +8,7 @@ import {
 import { formSchemaMap, formTypeSchema } from "@/lib/validations/forms";
 
 export const runtime = "nodejs";
+const FORM_SUCCESS_REDIRECT = "/thank-you";
 
 function getRequestIp(request: Request) {
   const forwardedFor = request.headers.get("x-forwarded-for");
@@ -58,7 +59,10 @@ export async function POST(request: Request) {
   }
 
   if (extractBotField(body).length > 0) {
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      redirectTo: FORM_SUCCESS_REDIRECT,
+    });
   }
 
   const formTypeResult = z
@@ -102,7 +106,10 @@ export async function POST(request: Request) {
       pageUri,
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      redirectTo: FORM_SUCCESS_REDIRECT,
+    });
   } catch (error) {
     console.error("[forms] Submission failed", {
       formType,

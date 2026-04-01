@@ -258,6 +258,20 @@ describe("mapWordPressPageResponse", () => {
               ],
             },
             {
+              __typename: "PageBuilderSectionsProblemSolutionLayout",
+              anchor: "problem-solution",
+              problemHeadline: "Leads slip through scattered tools.",
+              problemDescription: "Teams lose response speed when workflows live across inboxes and spreadsheets.",
+              solutionHeadline: "One operational system keeps every lead visible.",
+              solutionDescription: "Bring capture, assignment, and follow-up into one clean workflow.",
+              image: {
+                node: {
+                  sourceUrl: "https://example.com/problem-solution.jpg",
+                  altText: "Real estate operations dashboard",
+                },
+              },
+            },
+            {
               __typename: "PageBuilderSectionsCtaBandLayout",
               anchor: "cta",
               headline: "See the CRM in action",
@@ -341,6 +355,21 @@ describe("mapWordPressPageResponse", () => {
             answer: "Yes, with shared lead visibility.",
           },
         ],
+      },
+      {
+        id: "problem-solution",
+        _type: "problemSolution",
+        anchor: "problem-solution",
+        problemHeadline: "Leads slip through scattered tools.",
+        problemDescription:
+          "Teams lose response speed when workflows live across inboxes and spreadsheets.",
+        solutionHeadline: "One operational system keeps every lead visible.",
+        solutionDescription:
+          "Bring capture, assignment, and follow-up into one clean workflow.",
+        image: {
+          url: "https://example.com/problem-solution.jpg",
+          alt: "Real estate operations dashboard",
+        },
       },
       {
         id: "cta",
@@ -479,6 +508,18 @@ describe("mapGlobalSettingsResponse", () => {
       mapGlobalSettingsResponse({
         globalSettings: {
           globalContent: {
+            siteName: "AgentFlow",
+            defaultSeoTitle: "AgentFlow",
+            defaultSeoDescription: "Modern CRM infrastructure for real estate teams.",
+            defaultSeoImage: {
+              node: {
+                sourceUrl: "https://example.com/default-og.jpg",
+                altText: "Default social preview",
+              },
+            },
+            twitterHandle: "agentflow",
+            footerContactData:
+              "<p><a href=\"mailto:hello@agentflow.com\">hello@agentflow.com</a></p>",
             headerNav: [
               {
                 label: "Home",
@@ -509,6 +550,16 @@ describe("mapGlobalSettingsResponse", () => {
         },
       }),
     ).toEqual({
+      siteName: "AgentFlow",
+      defaultSeoTitle: "AgentFlow",
+      defaultSeoDescription: "Modern CRM infrastructure for real estate teams.",
+      defaultSeoImage: {
+        url: "https://example.com/default-og.jpg",
+        alt: "Default social preview",
+      },
+      twitterHandle: "@agentflow",
+      footerContactData:
+        "<p><a href=\"mailto:hello@agentflow.com\">hello@agentflow.com</a></p>",
       headerNav: [
         {
           label: "Home",
@@ -544,6 +595,12 @@ describe("mapGlobalSettingsResponse", () => {
         globalSettings: null,
       }),
     ).toEqual({
+      siteName: undefined,
+      defaultSeoTitle: undefined,
+      defaultSeoDescription: undefined,
+      defaultSeoImage: undefined,
+      twitterHandle: undefined,
+      footerContactData: undefined,
       headerNav: [],
       footerNav: [],
       socialLinks: [],
@@ -559,6 +616,12 @@ describe("mapGlobalSettingsResponse", () => {
         },
       }),
     ).toEqual({
+      siteName: undefined,
+      defaultSeoTitle: undefined,
+      defaultSeoDescription: undefined,
+      defaultSeoImage: undefined,
+      twitterHandle: undefined,
+      footerContactData: undefined,
       headerNav: [],
       footerNav: [],
       socialLinks: [],
@@ -571,6 +634,12 @@ describe("mapGlobalSettingsResponse", () => {
       mapGlobalSettingsResponse({
         globalSettings: {
           globalContent: {
+            siteName: " ",
+            defaultSeoTitle: null,
+            defaultSeoDescription: "",
+            defaultSeoImage: null,
+            twitterHandle: "@agentflow",
+            footerContactData: " ",
             headerNav: [
               {
                 label: "Home",
@@ -602,6 +671,12 @@ describe("mapGlobalSettingsResponse", () => {
         },
       }),
     ).toEqual({
+      siteName: undefined,
+      defaultSeoTitle: undefined,
+      defaultSeoDescription: undefined,
+      defaultSeoImage: undefined,
+      twitterHandle: "@agentflow",
+      footerContactData: undefined,
       headerNav: [
         {
           label: "Home",

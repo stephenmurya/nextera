@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useForm,
   type DefaultValues,
@@ -15,7 +15,11 @@ import { FormInput } from "@/components/forms/FormInput";
 import { panoramaLightPanelStyle } from "@/components/panorama/PanoramaPrimitives";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import { trackAnalyticsEvent } from "@/lib/analytics";
-import type { SubmissionPayload } from "@/lib/validations/forms";
+import {
+  interestTypeOptions,
+  teamSizeOptions,
+  type SubmissionPayload,
+} from "@/lib/validations/forms";
 
 type LeadCaptureFormProps<TFormValues extends SubmissionPayload> = {
   defaultValues: TFormValues;
@@ -36,10 +40,11 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
   submitLabel,
   title,
 }: LeadCaptureFormProps<TFormValues>) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -66,6 +71,8 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
     return undefined;
   };
 
+  const isBusy = isSubmitting || isRedirecting;
+
   const handleFirstFocus = () => {
     if (hasStarted) {
       return;
@@ -84,43 +91,15 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
     });
   };
 
-  const formBody = isSuccess ? (
-    <div className="px-6 py-10 sm:px-8">
-      <div className="flex flex-col items-center justify-center gap-5 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ebf5ee] text-[#1f6b3b] shadow-[0_14px_40px_rgba(31,107,59,0.12)]">
-          <svg
-            aria-hidden="true"
-            className="h-8 w-8"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M5 12.5 9.5 17 19 7.5"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2.25"
-            />
-          </svg>
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-3xl font-semibold tracking-[-0.04em] text-foreground">
-            Thank you!
-          </h3>
-          <p className="max-w-lg text-base leading-8 text-muted">
-            We&apos;ve received your information and will be in touch shortly.
-          </p>
-        </div>
-      </div>
-    </div>
-  ) : (
-      <form
-        aria-busy={isSubmitting}
-        className="space-y-6 px-6 py-8 sm:px-8"
-        onFocusCapture={handleFirstFocus}
+  const formBody = (
+    <form
+      aria-busy={isBusy}
+      className="space-y-6 px-6 py-8 sm:px-8"
+      onFocusCapture={handleFirstFocus}
       onSubmit={handleSubmit(
         async (values) => {
           setSubmissionError(null);
+
           try {
             const trackingValues = {
               utm_source: searchParams.get("utm_source") ?? undefined,
@@ -139,9 +118,18 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
                 ...trackingValues,
               }),
             });
+            const responseBody = (await response.json().catch(() => null)) as
+              | {
+                  message?: string;
+                  redirectTo?: string;
+                  success?: boolean;
+                }
+              | null;
 
             if (!response.ok) {
-              setSubmissionError("Something went wrong. Please try again.");
+              setSubmissionError(
+                responseBody?.message ?? "Something went wrong. Please try again.",
+              );
               trackAnalyticsEvent("form_submit_error", {
                 formType: defaultValues.formType,
                 errorType: "server",
@@ -152,14 +140,14 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
             trackAnalyticsEvent("form_submit_success", {
               formType: defaultValues.formType,
             });
-            setIsSuccess(true);
+            setIsRedirecting(true);
+            router.push(responseBody?.redirectTo ?? "/thank-you");
           } catch {
             setSubmissionError("Something went wrong. Please try again.");
             trackAnalyticsEvent("form_submit_error", {
               formType: defaultValues.formType,
               errorType: "network",
             });
-            return;
           }
         },
         handleInvalidSubmit,
@@ -184,7 +172,7 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
       <div className="grid gap-5 md:grid-cols-2">
         <FormInput
           autoComplete="given-name"
-          disabled={isSubmitting}
+          disabled={isBusy}
           error={getErrorMessage(errors.first_name)}
           id={`${defaultValues.formType}-first-name`}
           label="First name"
@@ -194,7 +182,7 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
         />
         <FormInput
           autoComplete="family-name"
-          disabled={isSubmitting}
+          disabled={isBusy}
           error={getErrorMessage(errors.last_name)}
           id={`${defaultValues.formType}-last-name`}
           label="Last name"
@@ -206,7 +194,7 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
       <div className="grid gap-5 md:grid-cols-2">
         <FormInput
           autoComplete="email"
-          disabled={isSubmitting}
+          disabled={isBusy}
           error={getErrorMessage(errors.email)}
           id={`${defaultValues.formType}-email`}
           label="Work email"
@@ -215,8 +203,21 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
           type="email"
         />
         <FormInput
+          autoComplete="tel"
+          disabled={isBusy}
+          error={getErrorMessage(errors.phone)}
+          id={`${defaultValues.formType}-phone`}
+          inputMode="tel"
+          label="Phone"
+          placeholder="+1 (555) 123-4567"
+          registration={register("phone" as Path<TFormValues>)}
+          type="tel"
+        />
+      </div>
+      <div className="grid gap-5 md:grid-cols-2">
+        <FormInput
           autoComplete="organization"
-          disabled={isSubmitting}
+          disabled={isBusy}
           error={getErrorMessage(errors.company_name)}
           id={`${defaultValues.formType}-company`}
           label="Company name"
@@ -224,7 +225,61 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
           registration={register("company_name" as Path<TFormValues>)}
           type="text"
         />
+        <FormInput
+          disabled={isBusy}
+          error={getErrorMessage(errors.market_or_city)}
+          id={`${defaultValues.formType}-market`}
+          label="Market or city"
+          placeholder="Lagos"
+          registration={register("market_or_city" as Path<TFormValues>)}
+          type="text"
+        />
       </div>
+      <div className="grid gap-5 md:grid-cols-2">
+        <FormInput
+          as="select"
+          disabled={isBusy}
+          error={getErrorMessage(errors.team_size)}
+          id={`${defaultValues.formType}-team-size`}
+          label="Team size"
+          options={teamSizeOptions.map((option) => ({
+            label: option.label,
+            value: option.value,
+          }))}
+          placeholderOption="Select your team size"
+          registration={register("team_size" as Path<TFormValues>)}
+        />
+        <FormInput
+          as="select"
+          disabled={isBusy}
+          error={getErrorMessage(errors.interest_type)}
+          id={`${defaultValues.formType}-interest-type`}
+          label="Interest type"
+          options={interestTypeOptions.map((option) => ({
+            label: option.label,
+            value: option.value,
+          }))}
+          registration={register("interest_type" as Path<TFormValues>)}
+        />
+      </div>
+      <FormInput
+        as="textarea"
+        disabled={isBusy}
+        error={getErrorMessage(errors.current_workflow)}
+        id={`${defaultValues.formType}-current-workflow`}
+        label="Current workflow"
+        placeholder="Tell us how your team currently captures, assigns, and follows up with leads."
+        registration={register("current_workflow" as Path<TFormValues>)}
+      />
+      <FormInput
+        as="textarea"
+        disabled={isBusy}
+        error={getErrorMessage(errors.biggest_pain_point)}
+        id={`${defaultValues.formType}-pain-point`}
+        label="Biggest pain point"
+        placeholder="What is the biggest bottleneck in your current sales and follow-up process?"
+        registration={register("biggest_pain_point" as Path<TFormValues>)}
+      />
       {submissionError ? (
         <p
           className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
@@ -244,9 +299,9 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
             "md",
             "min-w-[12rem] gap-3 disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-100",
           )}
-          disabled={isSubmitting}
+          disabled={isBusy}
           style={
-            isSubmitting
+            isBusy
               ? {
                   ...getButtonStyle("primary"),
                   backgroundColor: "#8f8880",
@@ -257,7 +312,7 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
           }
           type="submit"
         >
-          {isSubmitting ? (
+          {isBusy ? (
             <>
               <svg
                 aria-hidden="true"

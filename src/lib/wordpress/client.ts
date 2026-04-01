@@ -11,6 +11,7 @@ import {
   GET_ALL_PAGE_URIS,
   GET_GLOBAL_SETTINGS,
   GET_PAGE_BY_URI,
+  GET_PAGE_BY_URI_LEGACY,
 } from "@/lib/wordpress/queries";
 import type { GlobalSettings, Page } from "@/types/cms";
 
@@ -205,6 +206,19 @@ function createWordPressClient({
   });
 }
 
+function isUnknownProblemSolutionTypeError(error: unknown) {
+  if (!(error instanceof ClientError)) {
+    return false;
+  }
+
+  const errors = error.response.errors ?? [];
+
+  return errors.some((issue) =>
+    typeof issue?.message === "string" &&
+    issue.message.includes('Unknown type "PageBuilderSectionsProblemSolutionLayout"'),
+  );
+}
+
 function classifyWordPressError(
   error: unknown,
 ): { kind: WordPressErrorKind; status?: number; message: string } {
@@ -282,14 +296,33 @@ export async function getPageByUri(
       isDraft,
       tags: getWordPressCacheTags(slug),
     });
-    const response = await client.request<
-      GetPageByUriResponse,
-      GetPageByUriVariables
-    >({
-      document: GET_PAGE_BY_URI,
-      variables,
-      signal: AbortSignal.timeout(WORDPRESS_TIMEOUT_MS),
-    });
+    let response: GetPageByUriResponse;
+
+    try {
+      response = await client.request<GetPageByUriResponse, GetPageByUriVariables>({
+        document: GET_PAGE_BY_URI,
+        variables,
+        signal: AbortSignal.timeout(WORDPRESS_TIMEOUT_MS),
+      });
+    } catch (error) {
+      if (!isUnknownProblemSolutionTypeError(error)) {
+        throw error;
+      }
+
+      console.warn(
+        "[wordpress] Falling back to legacy page query because the CMS schema does not expose problem_solution yet.",
+        {
+          slug,
+          mode,
+        },
+      );
+
+      response = await client.request<GetPageByUriResponse, GetPageByUriVariables>({
+        document: GET_PAGE_BY_URI_LEGACY,
+        variables,
+        signal: AbortSignal.timeout(WORDPRESS_TIMEOUT_MS),
+      });
+    }
 
     return mapWordPressPageResponse(response, {
       siteUrl: env.NEXT_PUBLIC_SITE_URL,

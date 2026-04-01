@@ -80,6 +80,15 @@ export interface RichTextSection extends BaseSection {
   html: string;
 }
 
+export interface ProblemSolutionSection extends BaseSection {
+  _type: "problemSolution";
+  problemHeadline: string;
+  problemDescription?: string;
+  solutionHeadline: string;
+  solutionDescription?: string;
+  image?: MediaAsset;
+}
+
 export interface FaqSection extends BaseSection {
   _type: "faq";
   headline?: string;
@@ -130,6 +139,7 @@ export type PageSection =
   | HeroSection
   | FeatureGridSection
   | RichTextSection
+  | ProblemSolutionSection
   | FaqSection
   | CtaBandSection
   | TestimonialSection
@@ -139,6 +149,12 @@ export type PageSection =
   | FormSection;
 
 export interface GlobalSettings {
+  siteName?: string;
+  defaultSeoTitle?: string;
+  defaultSeoDescription?: string;
+  defaultSeoImage?: MediaAsset;
+  twitterHandle?: string;
+  footerContactData?: string;
   headerNav: NavigationLink[];
   footerNav: NavigationLink[];
   socialLinks: SocialLink[];

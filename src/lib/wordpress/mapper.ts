@@ -59,6 +59,16 @@ const rawRichTextSectionSchema = z.object({
   html: z.string().min(1),
 });
 
+const rawProblemSolutionSectionSchema = z.object({
+  __typename: z.literal("PageBuilderSectionsProblemSolutionLayout"),
+  anchor: z.string().nullish(),
+  problemHeadline: z.string().min(1),
+  problemDescription: z.string().nullish(),
+  solutionHeadline: z.string().min(1),
+  solutionDescription: z.string().nullish(),
+  image: rawMediaEdgeSchema.nullish(),
+});
+
 const rawFaqItemSchema = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),
@@ -135,6 +145,7 @@ const rawSectionSchema = z.discriminatedUnion("__typename", [
   rawHeroSectionSchema,
   rawFeatureGridSectionSchema,
   rawRichTextSectionSchema,
+  rawProblemSolutionSectionSchema,
   rawFaqSectionSchema,
   rawCtaBandSectionSchema,
   rawTestimonialSectionSchema,
@@ -200,6 +211,12 @@ const rawSocialLinkSchema = z.object({
 });
 
 const rawGlobalSettingsSchema = z.object({
+  siteName: z.string().nullish(),
+  defaultSeoTitle: z.string().nullish(),
+  defaultSeoDescription: z.string().nullish(),
+  defaultSeoImage: rawMediaEdgeSchema.nullish(),
+  twitterHandle: z.string().nullish(),
+  footerContactData: z.string().nullish(),
   headerNav: z
     .array(rawGlobalSettingsLinkSchema)
     .nullish()
@@ -233,6 +250,12 @@ type MapWordPressPageOptions = {
 };
 
 const emptyGlobalSettings: GlobalSettings = {
+  siteName: undefined,
+  defaultSeoTitle: undefined,
+  defaultSeoDescription: undefined,
+  defaultSeoImage: undefined,
+  twitterHandle: undefined,
+  footerContactData: undefined,
   headerNav: [],
   footerNav: [],
   socialLinks: [],
@@ -351,6 +374,16 @@ function mapSocialLink(
     platform,
     url,
   };
+}
+
+function normalizeTwitterHandle(value: string | null | undefined) {
+  const normalized = normalizeOptionalString(value);
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  return normalized.startsWith("@") ? normalized : `@${normalized}`;
 }
 
 function mapFeatureItem(
@@ -493,6 +526,17 @@ function mapParsedSection(rawSection: RawSection, index: number): PageSection {
         anchor,
         html: rawSection.html,
       };
+    case "PageBuilderSectionsProblemSolutionLayout":
+      return {
+        id: buildSectionId("problemSolution", index, anchor),
+        _type: "problemSolution",
+        anchor,
+        problemHeadline: rawSection.problemHeadline,
+        problemDescription: normalizeOptionalString(rawSection.problemDescription),
+        solutionHeadline: rawSection.solutionHeadline,
+        solutionDescription: normalizeOptionalString(rawSection.solutionDescription),
+        image: mapMediaAsset(rawSection.image?.node),
+      };
     case "PageBuilderSectionsFaqLayout":
       return {
         id: buildSectionId("faq", index, anchor),
@@ -558,6 +602,14 @@ function mapParsedSection(rawSection: RawSection, index: number): PageSection {
 
 function mapGlobalSettings(rawGlobalSettings: RawGlobalSettings): GlobalSettings {
   return {
+    siteName: normalizeOptionalString(rawGlobalSettings.siteName),
+    defaultSeoTitle: normalizeOptionalString(rawGlobalSettings.defaultSeoTitle),
+    defaultSeoDescription: normalizeOptionalString(
+      rawGlobalSettings.defaultSeoDescription,
+    ),
+    defaultSeoImage: mapMediaAsset(rawGlobalSettings.defaultSeoImage?.node),
+    twitterHandle: normalizeTwitterHandle(rawGlobalSettings.twitterHandle),
+    footerContactData: normalizeOptionalString(rawGlobalSettings.footerContactData),
     headerNav: rawGlobalSettings.headerNav
       .map(mapNavigationLink)
       .filter((item): item is NavigationLink => item !== null),

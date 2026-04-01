@@ -24,6 +24,8 @@ function labelForSection(section: PageSection) {
       return "Proof";
     case "testimonial":
       return "Story";
+    case "problemSolution":
+      return "Problem / Solution";
     case "faq":
       return "FAQ";
     case "formSection":
