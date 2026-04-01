@@ -17,19 +17,19 @@ export const conceptDefinitions = {
   },
   blueprint: {
     slug: "blueprint",
-    name: "Blueprint",
+    name: "Structured",
     route: "/concepts/blueprint",
-    direction: "Luxury Real Estate Tech",
+    direction: "Architectural Minimal",
     summary:
       "Architectural framing, technical labels, and monochrome detail that feels tailored to real estate workflows.",
   },
   panorama: {
     slug: "panorama",
-    name: "Panorama",
+    name: "Expansive",
     route: "/concepts/panorama",
-    direction: "Full-Bleed Blueprint",
+    direction: "Full-Bleed Canvas",
     summary:
-      "Expansive full-bleed property canvases layered with blueprint lines and precise technical structure.",
+      "Expansive full-bleed property canvases layered with restrained grid structure and precise visual rhythm.",
   },
 } as const;
 

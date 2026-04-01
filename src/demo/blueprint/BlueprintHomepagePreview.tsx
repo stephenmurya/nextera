@@ -186,15 +186,15 @@ function BlueprintStats(section: StatsStripSection) {
           key={`${stat.value}-${stat.label}-${index}`}
           style={cardStyle}
         >
+          <p className="text-5xl font-semibold tracking-[-0.06em] text-black sm:text-6xl">
+            {stat.value}
+          </p>
           <span
-            className="text-[11px] uppercase tracking-[0.3em] text-black/42"
+            className="mt-4 block text-[11px] uppercase tracking-[0.3em] text-black/42"
             style={{ fontFamily: "var(--font-geist-mono)" }}
           >
             {stat.label}
           </span>
-          <p className="mt-4 text-5xl font-semibold tracking-[-0.06em] text-black sm:text-6xl">
-            {stat.value}
-          </p>
         </div>
       ))}
     </section>
@@ -313,7 +313,10 @@ function BlueprintFaq(section: FaqSection) {
               </span>
               <span className="text-black/38">+</span>
             </summary>
-            <p className="pt-4 text-base leading-8 text-black/68">{faq.answer}</p>
+            <div
+              className="prose prose-base max-w-none pt-4 text-black/68 prose-p:text-black/68 prose-strong:text-black [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: faq.answer }}
+            />
           </details>
         ))}
       </div>
@@ -324,9 +327,10 @@ function BlueprintFaq(section: FaqSection) {
 function BlueprintRichText(section: RichTextSection) {
   return (
     <section className="overflow-hidden border border-black/15 bg-white p-6 sm:p-10" id={section.anchor} style={cardStyle}>
-      <div className="prose prose-lg max-w-none prose-headings:text-black prose-p:text-black/72 prose-strong:text-black">
-        <div dangerouslySetInnerHTML={{ __html: section.html }} />
-      </div>
+      <div
+        className="prose prose-lg max-w-none prose-headings:text-black prose-p:text-black/72 prose-strong:text-black [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+        dangerouslySetInnerHTML={{ __html: section.html }}
+      />
     </section>
   );
 }
@@ -480,11 +484,11 @@ export function BlueprintHomepagePreview({
                 className="text-[11px] font-semibold uppercase tracking-[0.32em] text-black/48"
                 style={{ fontFamily: "var(--font-geist-mono)" }}
               >
-                Blueprint / Luxury Real Estate Tech
+                Structured / Architectural Minimal
               </p>
             </div>
             <nav
-              aria-label="Blueprint preview navigation"
+              aria-label="Structured preview navigation"
               className="flex flex-wrap items-center gap-4 text-sm text-black/66"
             >
               {navItems.map((item) => (

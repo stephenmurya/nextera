@@ -1,4 +1,9 @@
 import { TrackedCtaLink } from "@/components/observability/TrackedCtaLink";
+import {
+  PanoramaCanvasSection,
+  PanoramaSectionEyebrow,
+  panoramaDarkPanelClassName,
+} from "@/components/panorama/PanoramaPrimitives";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { CtaBandSection as CtaBandSectionData } from "@/types/cms";
 
@@ -9,44 +14,41 @@ export function CtaBand({
   primaryCta,
 }: CtaBandSectionData) {
   return (
-    <section
-      className="py-16 md:py-24"
-      id={anchor}
+    <PanoramaCanvasSection
       aria-labelledby={anchor ? `${anchor}-heading` : undefined}
+      id={anchor}
     >
-      <div className="overflow-hidden rounded-[2.5rem] border border-[#c5a15f]/35 bg-[linear-gradient(135deg,#211c16_0%,#2c241b_52%,#3e2f1f_100%)] px-6 py-10 text-background shadow-[0_30px_90px_rgba(33,28,22,0.18)] sm:px-10 sm:py-12 lg:px-14 lg:py-16">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-3xl space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#e7d5b7]">
-              Ready to convert more leads
+      <div
+        className={`${panoramaDarkPanelClassName} flex flex-col gap-6 p-8 sm:p-10 lg:flex-row lg:items-end lg:justify-between`}
+      >
+        <div className="space-y-4">
+          <PanoramaSectionEyebrow inverse>Conversion Canvas</PanoramaSectionEyebrow>
+          <h2
+            className="max-w-3xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl"
+            id={anchor ? `${anchor}-heading` : undefined}
+          >
+            {headline}
+          </h2>
+          {subheadline ? (
+            <p className="max-w-2xl text-lg leading-8 text-white/72">
+              {subheadline}
             </p>
-            <h2
-              className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl"
-              id={anchor ? `${anchor}-heading` : undefined}
-            >
-              {headline}
-            </h2>
-            {subheadline ? (
-              <p className="max-w-2xl text-base leading-8 text-[#f6eee4]/80 sm:text-lg">
-                {subheadline}
-              </p>
-            ) : null}
-          </div>
-          {primaryCta ? (
-            <div className="shrink-0">
-              <TrackedCtaLink
-                className={getButtonClassName("cream")}
-                href={primaryCta.href}
-                label={primaryCta.label}
-                location="cta-band"
-                style={getButtonStyle("cream")}
-              >
-                {primaryCta.label}
-              </TrackedCtaLink>
-            </div>
           ) : null}
         </div>
+        {primaryCta ? (
+          <div className="shrink-0">
+            <TrackedCtaLink
+              className={getButtonClassName("cream")}
+              href={primaryCta.href}
+              label={primaryCta.label}
+              location="cta-band"
+              style={getButtonStyle("cream")}
+            >
+              {primaryCta.label}
+            </TrackedCtaLink>
+          </div>
+        ) : null}
       </div>
-    </section>
+    </PanoramaCanvasSection>
   );
 }

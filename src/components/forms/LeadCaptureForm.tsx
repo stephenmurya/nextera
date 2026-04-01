@@ -12,6 +12,7 @@ import {
 } from "react-hook-form";
 import type { ZodType } from "zod";
 import { FormInput } from "@/components/forms/FormInput";
+import { panoramaLightPanelStyle } from "@/components/panorama/PanoramaPrimitives";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import { trackAnalyticsEvent } from "@/lib/analytics";
 import type { SubmissionPayload } from "@/lib/validations/forms";
@@ -103,7 +104,7 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
           </svg>
         </div>
         <div className="space-y-2">
-          <h3 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h3 className="text-3xl font-semibold tracking-[-0.04em] text-foreground">
             Thank you!
           </h3>
           <p className="max-w-lg text-base leading-8 text-muted">
@@ -248,9 +249,9 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
             isSubmitting
               ? {
                   ...getButtonStyle("primary"),
-                  backgroundColor: "#a3988a",
-                  color: "#f9f4ee",
-                  WebkitTextFillColor: "#f9f4ee",
+                  backgroundColor: "#8f8880",
+                  color: "#f8f6ef",
+                  WebkitTextFillColor: "#f8f6ef",
                 }
               : getButtonStyle("primary")
           }
@@ -291,15 +292,26 @@ export function LeadCaptureForm<TFormValues extends SubmissionPayload>({
   );
 
   const formCard = (
-    <div className="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-border/80 bg-surface/95 shadow-[0_28px_90px_rgba(33,28,22,0.08)]">
+    <div
+      className={[
+        "w-full overflow-hidden rounded-[2rem] border border-black/12",
+        embedded ? "" : "mx-auto max-w-3xl",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={panoramaLightPanelStyle}
+    >
       {!hideHeader ? (
         <div className="border-b border-border/70 px-6 py-8 sm:px-8">
           <div className="space-y-3">
-            <span className="inline-flex rounded-full border border-border bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+            <span
+              className="inline-flex rounded-full border border-black/10 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-black/58"
+              style={{ fontFamily: "var(--font-geist-mono)" }}
+            >
               Lead Capture
             </span>
             <div className="space-y-2">
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              <h2 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">
                 {title}
               </h2>
               <p className="text-base leading-8 text-muted">{description}</p>

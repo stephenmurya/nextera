@@ -39,7 +39,7 @@ type SelectInputProps = BaseFormInputProps &
 type FormInputProps = TextInputProps | SelectInputProps;
 
 const baseFieldClassName =
-  "w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-[0_10px_35px_rgba(33,28,22,0.05)] transition placeholder:text-muted/70 focus:border-[#211c16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#211c16]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3] disabled:cursor-not-allowed disabled:bg-[#f4eee6] disabled:text-[#8f8579]";
+  "w-full rounded-[1.35rem] border border-black/12 bg-white/92 px-4 py-3.5 text-sm text-foreground shadow-[0_12px_32px_rgba(17,17,17,0.04)] transition placeholder:text-muted/70 focus:border-black/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f8f6ef] disabled:cursor-not-allowed disabled:bg-[#f4efe8] disabled:text-[#8f8579]";
 
 export function FormInput(props: FormInputProps) {
   const { id, label, error, registration } = props;
@@ -49,7 +49,7 @@ export function FormInput(props: FormInputProps) {
     return (
       <div className="space-y-2">
         <label
-          className="text-sm font-semibold tracking-[0.02em] text-foreground"
+          className="text-sm font-semibold tracking-[0.01em] text-foreground"
           htmlFor={id}
         >
           {label}
@@ -75,7 +75,7 @@ export function FormInput(props: FormInputProps) {
         </select>
         {error ? (
           <p
-            className="mt-1 text-sm text-red-500 transition-colors"
+            className="mt-1 text-sm text-[#b74431] transition-colors"
             id={describedBy}
             role="alert"
           >
@@ -89,7 +89,7 @@ export function FormInput(props: FormInputProps) {
   return (
     <div className="space-y-2">
       <label
-        className="text-sm font-semibold tracking-[0.02em] text-foreground"
+        className="text-sm font-semibold tracking-[0.01em] text-foreground"
         htmlFor={id}
       >
         {label}
@@ -109,7 +109,7 @@ export function FormInput(props: FormInputProps) {
       />
       {error ? (
         <p
-          className="mt-1 text-sm text-red-500 transition-colors"
+          className="mt-1 text-sm text-[#b74431] transition-colors"
           id={describedBy}
           role="alert"
         >

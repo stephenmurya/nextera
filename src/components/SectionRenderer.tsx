@@ -34,7 +34,7 @@ function renderUnknownSection(section: never, index: number) {
 
 export function SectionRenderer({ sections }: SectionRendererProps) {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col">
       {sections.map((section, index) => {
         switch (section._type) {
           case "hero":

@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import {
+  PanoramaCanvasSection,
+  PanoramaSectionEyebrow,
+  panoramaDarkPanelClassName,
+} from "@/components/panorama/PanoramaPrimitives";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 
 type MarketingErrorProps = {
@@ -12,37 +17,39 @@ export default function MarketingError({
   unstable_retry,
 }: MarketingErrorProps) {
   return (
-    <div className="flex min-h-[60vh] flex-col items-start justify-center gap-6 rounded-[2rem] border border-border/80 bg-surface/95 p-8 shadow-[0_24px_80px_rgba(33,28,22,0.08)]">
-      <span className="rounded-full border border-border/80 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-muted">
-        CMS Unavailable
-      </span>
-      <div className="max-w-2xl space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Content is temporarily unavailable.
-        </h1>
-        <p className="text-base leading-7 text-muted sm:text-lg">
-          The marketing site is online, but WordPress did not respond in time.
-          Try the request again or head back to the homepage while the CMS
-          connection recovers.
-        </p>
+    <PanoramaCanvasSection innerClassName="py-20 sm:py-24">
+      <div
+        className={`${panoramaDarkPanelClassName} mx-auto flex min-h-[60vh] max-w-4xl flex-col items-start justify-center gap-6 px-8 py-10 sm:px-10`}
+      >
+        <PanoramaSectionEyebrow inverse>CMS Unavailable</PanoramaSectionEyebrow>
+        <div className="max-w-2xl space-y-3">
+          <h1 className="text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl">
+            Content is temporarily unavailable.
+          </h1>
+          <p className="text-base leading-8 text-white/72 sm:text-lg">
+            The marketing site is online, but WordPress did not respond in time.
+            Try the request again or head back to the homepage while the CMS
+            connection recovers.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button
+            className={getButtonClassName("cream", "sm")}
+            onClick={() => unstable_retry()}
+            style={getButtonStyle("cream")}
+            type="button"
+          >
+            Try Again
+          </button>
+          <Link
+            className={getButtonClassName("ghostInverse", "sm")}
+            href="/"
+            style={getButtonStyle("ghostInverse")}
+          >
+            Back Home
+          </Link>
+        </div>
       </div>
-      <div className="flex flex-wrap gap-3">
-        <button
-          className={getButtonClassName("primary", "sm")}
-          onClick={() => unstable_retry()}
-          style={getButtonStyle("primary")}
-          type="button"
-        >
-          Try Again
-        </button>
-        <Link
-          className={getButtonClassName("secondary", "sm")}
-          href="/"
-          style={getButtonStyle("secondary")}
-        >
-          Back Home
-        </Link>
-      </div>
-    </div>
+    </PanoramaCanvasSection>
   );
 }

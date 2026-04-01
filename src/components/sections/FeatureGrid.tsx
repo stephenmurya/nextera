@@ -1,3 +1,9 @@
+import {
+  PanoramaCanvasSection,
+  PanoramaSectionEyebrow,
+  panoramaLightPanelClassName,
+  panoramaLightPanelStyle,
+} from "@/components/panorama/PanoramaPrimitives";
 import { SectionIcon } from "@/components/sections/SectionIcons";
 import type { FeatureGridSection as FeatureGridSectionData } from "@/types/cms";
 
@@ -8,52 +14,62 @@ export function FeatureGrid({
   items,
 }: FeatureGridSectionData) {
   return (
-    <section
-      className="py-16 md:py-24"
-      id={anchor}
+    <PanoramaCanvasSection
       aria-labelledby={anchor ? `${anchor}-heading` : undefined}
+      id={anchor}
     >
-      <div className="space-y-10">
+      <div className="space-y-8">
         {headline || intro ? (
-          <div className="mx-auto max-w-3xl space-y-4 text-center">
-            {headline ? (
-              <h2
-                className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
-                id={anchor ? `${anchor}-heading` : undefined}
-              >
-                {headline}
-              </h2>
-            ) : null}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-3">
+              <PanoramaSectionEyebrow>Platform</PanoramaSectionEyebrow>
+              {headline ? (
+                <h2
+                  className="max-w-3xl text-4xl font-semibold tracking-[-0.05em] text-black sm:text-5xl"
+                  id={anchor ? `${anchor}-heading` : undefined}
+                >
+                  {headline}
+                </h2>
+              ) : null}
+            </div>
             {intro ? (
-              <p className="text-base leading-8 text-muted sm:text-lg">
+              <p className="max-w-xl text-base leading-8 text-black/68">
                 {intro}
               </p>
             ) : null}
           </div>
         ) : null}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 lg:grid-cols-3">
           {items.map((item, index) => (
             <article
-              className="group flex h-full flex-col rounded-[2rem] border border-border/80 bg-surface/95 p-6 shadow-[0_20px_65px_rgba(33,28,22,0.06)] transition-transform hover:-translate-y-1"
+              className={`${panoramaLightPanelClassName} relative overflow-hidden p-6`}
               key={`${item.title}-${index}`}
+              style={panoramaLightPanelStyle}
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground text-background">
-                <SectionIcon className="h-5 w-5" icon={item.icon} />
-              </div>
-              <div className="mt-6 space-y-3">
-                <h3 className="text-xl font-semibold tracking-tight text-foreground">
-                  {item.title}
-                </h3>
-                {item.description ? (
-                  <p className="text-sm leading-7 text-muted sm:text-base">
-                    {item.description}
-                  </p>
-                ) : null}
+              <div className="space-y-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#111111] text-white">
+                    <SectionIcon className="h-5 w-5" icon={item.icon} />
+                  </div>
+                  <PanoramaSectionEyebrow>
+                    [{(index + 1).toString().padStart(2, "0")}]
+                  </PanoramaSectionEyebrow>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-semibold tracking-[-0.04em] text-black">
+                    {item.title}
+                  </h3>
+                  {item.description ? (
+                    <p className="text-base leading-8 text-black/68">
+                      {item.description}
+                    </p>
+                  ) : null}
+                </div>
               </div>
             </article>
           ))}
         </div>
       </div>
-    </section>
+    </PanoramaCanvasSection>
   );
 }

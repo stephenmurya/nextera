@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "cream";
+export type ButtonVariant = "primary" | "secondary" | "cream" | "ghostInverse";
 export type ButtonSize = "sm" | "md";
 
 const buttonBaseClassName =
-  "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2";
+  "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold tracking-[0.01em] transition duration-200 focus-visible:outline-none focus-visible:ring-2";
 
 const buttonSizeClassNames: Record<ButtonSize, string> = {
   sm: "px-5 py-2.5",
@@ -13,29 +13,37 @@ const buttonSizeClassNames: Record<ButtonSize, string> = {
 
 const buttonVariantClassNames: Record<ButtonVariant, string> = {
   primary:
-    "hover:bg-[#2d261e] focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]",
+    "hover:bg-[#262626] focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#efeee8]",
   secondary:
-    "border hover:border-[#211c16] hover:bg-[#fffcf8] focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]",
+    "border hover:border-black/20 hover:bg-white focus-visible:ring-black/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#efeee8]",
   cream:
-    "hover:bg-white focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#2c241b]",
+    "hover:bg-white focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]",
+  ghostInverse:
+    "border hover:bg-white/10 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]",
 };
 
 const buttonVariantStyles: Record<ButtonVariant, CSSProperties> = {
   primary: {
-    backgroundColor: "#211c16",
-    color: "#fffaf3",
-    WebkitTextFillColor: "#fffaf3",
+    backgroundColor: "#111111",
+    color: "#f8f6ef",
+    WebkitTextFillColor: "#f8f6ef",
   },
   secondary: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8c9b7",
-    color: "#211c16",
-    WebkitTextFillColor: "#211c16",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderColor: "rgba(17,17,17,0.12)",
+    color: "#111111",
+    WebkitTextFillColor: "#111111",
   },
   cream: {
-    backgroundColor: "#f4ede4",
-    color: "#211c16",
-    WebkitTextFillColor: "#211c16",
+    backgroundColor: "#f5f5f1",
+    color: "#111111",
+    WebkitTextFillColor: "#111111",
+  },
+  ghostInverse: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.22)",
+    color: "#ffffff",
+    WebkitTextFillColor: "#ffffff",
   },
 };
 

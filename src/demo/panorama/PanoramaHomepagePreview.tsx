@@ -157,10 +157,10 @@ function PanoramaHero(section: HeroSection) {
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-[0.32em] text-white/72">
               <span style={{ fontFamily: "var(--font-geist-mono)" }}>
-                {section.eyebrow ?? "Luxury Property Meets Engineering Precision"}
+                {section.eyebrow ?? "Real Estate CRM"}
               </span>
               <span style={{ fontFamily: "var(--font-geist-mono)" }}>
-                [ PANORAMA / ENTRY ]
+                [ FULL-BLEED / ENTRY ]
               </span>
             </div>
             <h1 className="max-w-4xl text-5xl font-semibold leading-none tracking-[-0.06em] sm:text-6xl lg:text-7xl">
@@ -273,14 +273,14 @@ function PanoramaStats(section: StatsStripSection) {
             className="rounded-[1.5rem] border border-black/10 bg-[#111111] p-6 text-white shadow-[0_24px_60px_rgba(17,17,17,0.18)]"
             key={`${stat.value}-${stat.label}-${index}`}
           >
+            <p className="text-5xl font-semibold tracking-[-0.06em] text-white sm:text-6xl">
+              {stat.value}
+            </p>
             <p
-              className="text-[11px] uppercase tracking-[0.3em] text-white/56"
+              className="mt-4 text-[11px] uppercase tracking-[0.3em] text-white/56"
               style={{ fontFamily: "var(--font-geist-mono)" }}
             >
               {stat.label}
-            </p>
-            <p className="mt-4 text-5xl font-semibold tracking-[-0.06em] text-white sm:text-6xl">
-              {stat.value}
             </p>
           </div>
         ))}
@@ -411,9 +411,10 @@ function PanoramaFaq(section: FaqSection) {
                 </span>
                 <span className="text-black/38">+</span>
               </summary>
-              <p className="pt-4 text-base leading-8 text-black/68">
-                {faq.answer}
-              </p>
+              <div
+                className="prose prose-base max-w-none pt-4 text-black/68 prose-p:text-black/68 prose-strong:text-black [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                dangerouslySetInnerHTML={{ __html: faq.answer }}
+              />
             </details>
           ))}
         </div>
@@ -426,9 +427,10 @@ function PanoramaRichText(section: RichTextSection) {
   return (
     <CanvasSection id={section.anchor}>
       <div className="rounded-[2rem] p-6 sm:p-10" style={lightPanelStyle}>
-        <div className="prose prose-lg max-w-none prose-headings:text-black prose-p:text-black/72 prose-strong:text-black">
-          <div dangerouslySetInnerHTML={{ __html: section.html }} />
-        </div>
+        <div
+          className="prose prose-lg max-w-none prose-headings:text-black prose-p:text-black/72 prose-strong:text-black [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+          dangerouslySetInnerHTML={{ __html: section.html }}
+        />
       </div>
     </CanvasSection>
   );
@@ -576,15 +578,15 @@ export function PanoramaHomepagePreview({
               <Link className="text-xl font-semibold tracking-[-0.05em] text-white" href="/">
                 AgentFlow
               </Link>
-              <p
-                className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/60"
-                style={{ fontFamily: "var(--font-geist-mono)" }}
-              >
-                Panorama / Full-Bleed Blueprint
-              </p>
-            </div>
-            <nav
-              aria-label="Panorama preview navigation"
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/60"
+              style={{ fontFamily: "var(--font-geist-mono)" }}
+            >
+                Expansive / Full-Bleed Canvas
+            </p>
+          </div>
+          <nav
+              aria-label="Expansive preview navigation"
               className="flex flex-wrap items-center gap-4 text-sm text-white/78"
             >
               {navItems.map((item) => (
@@ -616,7 +618,7 @@ export function PanoramaHomepagePreview({
               Concept Preview
             </p>
             <p className="max-w-3xl text-3xl font-semibold tracking-[-0.05em] text-white">
-              Blueprint evolved into an expansive edge-to-edge canvas built for premium property storytelling.
+              A full-bleed canvas direction built for premium property storytelling.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

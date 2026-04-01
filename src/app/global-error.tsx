@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import {
+  PanoramaCanvasSection,
+  PanoramaSectionEyebrow,
+  panoramaDarkPanelClassName,
+} from "@/components/panorama/PanoramaPrimitives";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import "./globals.css";
 
@@ -32,48 +37,50 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="min-h-screen bg-background text-foreground">
-        <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-10 sm:px-10 sm:py-14">
-          <div className="overflow-hidden rounded-[2.5rem] border border-border/80 bg-surface/95 shadow-[0_28px_90px_rgba(33,28,22,0.08)]">
-            <div className="space-y-8 px-6 py-12 sm:px-10 sm:py-14 lg:px-14">
-              <div className="space-y-4">
-                <span className="rounded-full border border-border/80 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-muted">
-                  Application Error
-                </span>
-                <div className="space-y-3">
-                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    Something went wrong.
-                  </h1>
-                  <p className="max-w-2xl text-base leading-7 text-muted sm:text-lg">
-                    The app hit an unexpected failure while rendering this page.
-                    Try again, or head back to the homepage while we recover the
-                    experience.
-                  </p>
-                  {error.digest ? (
-                    <p className="text-sm text-muted">
-                      Reference ID: {error.digest}
+        <main className="flex min-h-screen w-full flex-col">
+          <PanoramaCanvasSection innerClassName="py-20 sm:py-24 lg:py-28">
+            <div
+              className={`${panoramaDarkPanelClassName} mx-auto max-w-4xl px-6 py-12 sm:px-10 sm:py-14 lg:px-14`}
+            >
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <PanoramaSectionEyebrow inverse>Application Error</PanoramaSectionEyebrow>
+                  <div className="space-y-3">
+                    <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
+                      Something went wrong.
+                    </h1>
+                    <p className="max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
+                      The app hit an unexpected failure while rendering this page.
+                      Try again, or head back to the homepage while we recover the
+                      experience.
                     </p>
-                  ) : null}
+                    {error.digest ? (
+                      <p className="text-sm text-white/48">
+                        Reference ID: {error.digest}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    className={getButtonClassName("cream", "sm")}
+                    onClick={handleRetry}
+                    style={getButtonStyle("cream")}
+                    type="button"
+                  >
+                    Try Again
+                  </button>
+                  <Link
+                    className={getButtonClassName("ghostInverse", "sm")}
+                    href="/"
+                    style={getButtonStyle("ghostInverse")}
+                  >
+                    Back Home
+                  </Link>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  className={getButtonClassName("primary", "sm")}
-                  onClick={handleRetry}
-                  style={getButtonStyle("primary")}
-                  type="button"
-                >
-                  Try Again
-                </button>
-                <Link
-                  className={getButtonClassName("secondary", "sm")}
-                  href="/"
-                  style={getButtonStyle("secondary")}
-                >
-                  Back Home
-                </Link>
-              </div>
             </div>
-          </div>
+          </PanoramaCanvasSection>
         </main>
       </body>
     </html>

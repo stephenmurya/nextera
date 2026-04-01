@@ -24,7 +24,7 @@ export default function ConceptsIndexPage() {
           <p className="max-w-3xl text-lg leading-8 text-black/68">
             These previews all pull the live homepage content from WordPress and
             only change the presentation layer. The production site stays
-            untouched while we compare three visual directions side by side.
+            untouched while we compare four visual directions side by side.
           </p>
         </div>
 

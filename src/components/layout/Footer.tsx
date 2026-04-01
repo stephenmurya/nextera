@@ -1,4 +1,9 @@
 import Link from "next/link";
+import {
+  PanoramaFullBleedSection,
+  PanoramaInner,
+  panoramaImageGridOverlayStyle,
+} from "@/components/panorama/PanoramaPrimitives";
 import type { NavigationLink, SocialLink } from "@/types/cms";
 
 type FooterProps = {
@@ -7,25 +12,36 @@ type FooterProps = {
 };
 
 const footerLinkClassName =
-  "text-sm text-foreground/68 transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf8f2]";
+  "text-sm text-white/70 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]";
 
 export function Footer({ footerNav, socialLinks }: FooterProps) {
   return (
-    <footer className="mt-auto w-full border-t border-black/10 bg-[#faf8f2]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12 sm:px-10 sm:py-14">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <div className="space-y-4">
-            <p className="text-lg font-extrabold tracking-[-0.04em] text-foreground sm:text-xl">
-              AgentFlow
-            </p>
-            <p className="max-w-md text-sm leading-7 text-foreground/68">
-              Precision-built CRM infrastructure for modern real estate teams.
-              WordPress manages the story. AgentFlow turns that story into conversion.
-            </p>
+    <PanoramaFullBleedSection className="mt-auto bg-[#111111] text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.18]"
+        style={panoramaImageGridOverlayStyle}
+      />
+      <PanoramaInner className="relative py-14 sm:py-16 lg:py-20">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <div className="space-y-5">
+            <div className="space-y-4">
+              <p className="text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl">
+                AgentFlow
+              </p>
+              <p className="max-w-xl text-base leading-8 text-white/68">
+                Precision-built CRM infrastructure for modern real estate teams.
+                A clear, modern system for managing leads, follow-up, and client
+                relationships across the entire property journey.
+              </p>
+            </div>
           </div>
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-foreground/44">
+              <p
+                className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/60"
+                style={{ fontFamily: "var(--font-geist-mono)" }}
+              >
                 Navigation
               </p>
               <nav aria-label="Footer">
@@ -41,7 +57,10 @@ export function Footer({ footerNav, socialLinks }: FooterProps) {
               </nav>
             </div>
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-foreground/44">
+              <p
+                className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/60"
+                style={{ fontFamily: "var(--font-geist-mono)" }}
+              >
                 Social
               </p>
               <ul className="space-y-3">
@@ -61,11 +80,11 @@ export function Footer({ footerNav, socialLinks }: FooterProps) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-3 border-t border-black/8 pt-5 text-xs uppercase tracking-[0.22em] text-foreground/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs uppercase tracking-[0.22em] text-white/42 sm:flex-row sm:items-center sm:justify-between">
           <p>AgentFlow Marketing System</p>
           <p>Built for conversion, clarity, and control.</p>
         </div>
-      </div>
-    </footer>
+      </PanoramaInner>
+    </PanoramaFullBleedSection>
   );
 }

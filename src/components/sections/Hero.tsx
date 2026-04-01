@@ -1,5 +1,12 @@
 import Image from "next/image";
 import { TrackedCtaLink } from "@/components/observability/TrackedCtaLink";
+import {
+  PanoramaFullBleedSection,
+  PanoramaInner,
+  PanoramaSectionEyebrow,
+  panoramaGlassPanelStyle,
+  panoramaImageGridOverlayStyle,
+} from "@/components/panorama/PanoramaPrimitives";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { HeroSection as HeroSectionData } from "@/types/cms";
 
@@ -12,68 +19,75 @@ export function Hero({
   secondaryCta,
   backgroundImage,
 }: HeroSectionData) {
-  const hasImage = Boolean(backgroundImage);
-
   return (
-    <section
-      className="relative py-16 md:py-24"
-      id={anchor}
+    <PanoramaFullBleedSection
       aria-labelledby={anchor ? `${anchor}-heading` : undefined}
+      className="min-h-[92vh] bg-[#111111]"
+      id={anchor}
     >
-      <div className="absolute inset-x-6 top-0 -z-10 h-40 rounded-full bg-[radial-gradient(circle,_rgba(195,153,93,0.28),_transparent_68%)] blur-3xl" />
-      <div className="overflow-hidden rounded-[2.5rem] border border-border/80 bg-surface/95 shadow-[0_28px_90px_rgba(33,28,22,0.08)]">
+      {backgroundImage ? (
+        <Image
+          alt={backgroundImage.alt ?? headline}
+          className="object-cover"
+          fill
+          priority
+          sizes="100vw"
+          src={backgroundImage.url}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#111111_0%,#1b1b1b_46%,#303030_100%)]" />
+      )}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,7,7,0.24),rgba(7,7,7,0.62))]" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-55"
+        style={panoramaImageGridOverlayStyle}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.1),transparent_24%)]" />
+      <PanoramaInner className="relative flex min-h-[92vh] items-end py-24 pt-36 sm:py-28 sm:pt-40 lg:py-32 lg:pt-44">
         <div
-          className={[
-            "grid gap-10 px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-16",
-            hasImage
-              ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center"
-              : "justify-items-center text-center",
-          ].join(" ")}
+          className="w-full max-w-3xl rounded-[2rem] p-6 text-white sm:p-8 lg:p-10"
+          style={panoramaGlassPanelStyle}
         >
-          <div className={["space-y-6", hasImage ? "max-w-2xl" : "max-w-3xl"].join(" ")}>
-            {eyebrow ? (
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-muted">
-                {eyebrow}
-              </p>
-            ) : null}
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <PanoramaSectionEyebrow inverse>
+                {eyebrow ?? "Real Estate CRM"}
+              </PanoramaSectionEyebrow>
+            </div>
             <div className="space-y-4">
               <h1
-                className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+                className="max-w-4xl text-5xl font-semibold leading-none tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl"
                 id={anchor ? `${anchor}-heading` : undefined}
               >
                 {headline}
               </h1>
               {body ? (
-                <p className="max-w-2xl text-base leading-8 text-muted sm:text-lg">
+                <p className="max-w-2xl text-lg leading-8 text-white/82">
                   {body}
                 </p>
               ) : null}
             </div>
             {primaryCta || secondaryCta ? (
-              <div
-                className={[
-                  "flex flex-wrap gap-3",
-                  hasImage ? "justify-start" : "justify-center",
-                ].join(" ")}
-              >
+              <div className="flex flex-wrap gap-3 pt-2">
                 {primaryCta ? (
                   <TrackedCtaLink
-                    className={getButtonClassName("primary")}
+                    className={getButtonClassName("cream")}
                     href={primaryCta.href}
                     label={primaryCta.label}
                     location="hero-primary"
-                    style={getButtonStyle("primary")}
+                    style={getButtonStyle("cream")}
                   >
                     {primaryCta.label}
                   </TrackedCtaLink>
                 ) : null}
                 {secondaryCta ? (
                   <TrackedCtaLink
-                    className={getButtonClassName("secondary")}
+                    className={getButtonClassName("ghostInverse")}
                     href={secondaryCta.href}
                     label={secondaryCta.label}
                     location="hero-secondary"
-                    style={getButtonStyle("secondary")}
+                    style={getButtonStyle("ghostInverse")}
                   >
                     {secondaryCta.label}
                   </TrackedCtaLink>
@@ -81,24 +95,8 @@ export function Hero({
               </div>
             ) : null}
           </div>
-          {backgroundImage ? (
-            <div className="relative min-h-[320px] overflow-hidden rounded-[2rem] border border-white/70 bg-[#efe4d2] shadow-[0_24px_80px_rgba(33,28,22,0.12)] sm:min-h-[420px]">
-              <Image
-                alt={backgroundImage.alt ?? headline}
-                className="object-cover"
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 50vw"
-                src={backgroundImage.url}
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-linear-to-t from-[#211c16]/30 via-transparent to-transparent"
-              />
-            </div>
-          ) : null}
         </div>
-      </div>
-    </section>
+      </PanoramaInner>
+    </PanoramaFullBleedSection>
   );
 }

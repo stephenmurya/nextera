@@ -2,8 +2,8 @@ import { ConceptHomepagePreviewPage } from "@/demo/shared/ConceptHomepagePreview
 import { buildConceptMetadata } from "@/demo/shared/metadata";
 
 export const metadata = buildConceptMetadata(
-  "Panorama Concept Preview",
-  "Full-bleed blueprint homepage concept preview for AgentFlow.",
+  "Expansive Concept Preview",
+  "Full-bleed canvas homepage concept preview for AgentFlow.",
 );
 
 export default function PanoramaConceptPage() {

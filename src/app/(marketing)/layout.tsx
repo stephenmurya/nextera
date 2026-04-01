@@ -34,9 +34,7 @@ export default async function MarketingLayout({
         globalCta={globalSettings.globalCta}
         headerNav={globalSettings.headerNav}
       />
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-10 sm:px-10 sm:py-14">
-        {children}
-      </div>
+      <div className="flex w-full flex-1 flex-col">{children}</div>
       <Footer
         footerNav={globalSettings.footerNav}
         socialLinks={globalSettings.socialLinks}

@@ -2,11 +2,11 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #f7f3ed;
-  --foreground: #211c16;
-  --muted: #6f6458;
-  --surface: #fffcf8;
-  --border: #dfd3c4;
+  --background: #efeee8;
+  --foreground: #111111;
+  --muted: #605b54;
+  --surface: #fcfbf7;
+  --border: #d3cec5;
 }
 
 @theme inline {
@@ -25,13 +25,19 @@
 
 html {
   scroll-behavior: smooth;
-  background:
-    radial-gradient(circle at top, rgba(195, 153, 93, 0.16), transparent 40%),
-    linear-gradient(180deg, #fffaf3 0%, var(--background) 100%);
+  background: var(--background);
 }
 
 body {
   min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.72), transparent 26%),
+    radial-gradient(circle at bottom left, rgba(17, 17, 17, 0.035), transparent 24%),
+    linear-gradient(rgba(17, 17, 17, 0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 17, 17, 0.024) 1px, transparent 1px),
+    var(--background);
+  background-attachment: fixed;
+  background-size: auto, auto, 92px 92px, 92px 92px, auto;
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
 }
