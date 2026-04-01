@@ -6,6 +6,7 @@ import { ContactFormValues, contactFormSchema } from "@/lib/validations/forms";
 type ContactFormProps = {
   description?: string;
   embedded?: boolean;
+  hideHeader?: boolean;
   title?: string;
 };
 
@@ -25,6 +26,7 @@ const defaultValues: ContactFormValues = {
 export function ContactForm({
   description = "Send your questions to our team and we'll follow up with the right next step for your workflow.",
   embedded = false,
+  hideHeader = false,
   title = "Talk to our team",
 }: ContactFormProps) {
   return (
@@ -32,6 +34,7 @@ export function ContactForm({
       defaultValues={defaultValues}
       description={description}
       embedded={embedded}
+      hideHeader={hideHeader}
       schema={contactFormSchema}
       submitLabel="Contact sales"
       title={title}

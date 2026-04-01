@@ -6,10 +6,15 @@ export const GET_PAGE_BY_URI = gql`
       title
       slug
       uri
+      status
+      template {
+        templateName
+      }
       seo {
         title
         metaDesc
         canonical
+        metaRobotsNoindex
         opengraphTitle
         opengraphDescription
         opengraphImage {
@@ -114,6 +119,31 @@ export const GET_PAGE_BY_URI = gql`
             headline
             body
           }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_GLOBAL_SETTINGS = gql`
+  query GetGlobalSettings {
+    globalSettings {
+      globalContent {
+        headerNav {
+          label
+          href
+        }
+        footerNav {
+          label
+          href
+        }
+        socialLinks {
+          platform
+          url
+        }
+        globalCta {
+          label
+          href
         }
       }
     }

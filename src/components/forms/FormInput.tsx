@@ -39,7 +39,7 @@ type SelectInputProps = BaseFormInputProps &
 type FormInputProps = TextInputProps | SelectInputProps;
 
 const baseFieldClassName =
-  "w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-[0_10px_35px_rgba(33,28,22,0.05)] transition placeholder:text-muted/70 focus:border-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3]";
+  "w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-[0_10px_35px_rgba(33,28,22,0.05)] transition placeholder:text-muted/70 focus:border-[#211c16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#211c16]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf3] disabled:cursor-not-allowed disabled:bg-[#f4eee6] disabled:text-[#8f8579]";
 
 export function FormInput(props: FormInputProps) {
   const { id, label, error, registration } = props;
@@ -74,7 +74,11 @@ export function FormInput(props: FormInputProps) {
           ))}
         </select>
         {error ? (
-          <p className="text-sm text-red-700" id={describedBy} role="alert">
+          <p
+            className="mt-1 text-sm text-red-500 transition-colors"
+            id={describedBy}
+            role="alert"
+          >
             {error}
           </p>
         ) : null}
@@ -104,7 +108,11 @@ export function FormInput(props: FormInputProps) {
         type={props.type}
       />
       {error ? (
-        <p className="text-sm text-red-700" id={describedBy} role="alert">
+        <p
+          className="mt-1 text-sm text-red-500 transition-colors"
+          id={describedBy}
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

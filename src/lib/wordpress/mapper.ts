@@ -3,11 +3,14 @@ import type {
   CallToAction,
   FaqItem,
   FeatureGridItem,
+  GlobalSettings,
   HowItWorksStep,
   MediaAsset,
+  NavigationLink,
   Page,
   PageSection,
   SeoMetadata,
+  SocialLink,
   StatItem,
 } from "@/types/cms";
 
@@ -50,7 +53,7 @@ const rawFeatureGridSectionSchema = z.object({
   items: z.array(rawFeatureItemSchema),
 });
 
-const RawRichTextSectionSchema = z.object({
+const rawRichTextSectionSchema = z.object({
   __typename: z.literal("PageBuilderSectionsRichTextLayout"),
   anchor: z.string().nullish(),
   html: z.string().min(1),
@@ -120,7 +123,10 @@ const rawStatsStripSectionSchema = z.object({
 const rawFormSectionSchema = z.object({
   __typename: z.literal("PageBuilderSectionsFormSectionLayout"),
   anchor: z.string().nullish(),
-  formType: z.enum(["waitlist", "demo", "contact"]),
+  formType: z.union([
+    z.enum(["waitlist", "demo", "contact"]),
+    z.array(z.enum(["waitlist", "demo", "contact"])).min(1),
+  ]),
   headline: z.string().min(1),
   body: z.string().nullish(),
 });
@@ -128,7 +134,7 @@ const rawFormSectionSchema = z.object({
 const rawSectionSchema = z.discriminatedUnion("__typename", [
   rawHeroSectionSchema,
   rawFeatureGridSectionSchema,
-  RawRichTextSectionSchema,
+  rawRichTextSectionSchema,
   rawFaqSectionSchema,
   rawCtaBandSectionSchema,
   rawTestimonialSectionSchema,
@@ -149,9 +155,16 @@ const rawSeoSchema = z
     title: z.string().nullish(),
     metaDesc: z.string().nullish(),
     canonical: z.string().nullish(),
+    metaRobotsNoindex: z.union([z.boolean(), z.number(), z.string()]).nullish(),
     opengraphTitle: z.string().nullish(),
     opengraphDescription: z.string().nullish(),
     opengraphImage: rawSeoImageSchema,
+  })
+  .nullish();
+
+const rawTemplateSchema = z
+  .object({
+    templateName: z.string().nullish(),
   })
   .nullish();
 
@@ -159,10 +172,15 @@ const rawPageNodeSchema = z.object({
   title: z.string().min(1),
   slug: z.string().nullish(),
   uri: z.string().min(1),
+  status: z.string().nullish(),
+  template: rawTemplateSchema,
   seo: rawSeoSchema,
   pageBuilder: z
     .object({
-      sections: z.array(z.record(z.string(), z.unknown())).nullish().transform(val => val ?? []),
+      sections: z
+        .array(z.record(z.string(), z.unknown()))
+        .nullish()
+        .transform((value) => value ?? []),
     })
     .nullish(),
 });
@@ -171,12 +189,54 @@ const rawPageResponseSchema = z.object({
   page: rawPageNodeSchema.nullable(),
 });
 
+const rawGlobalSettingsLinkSchema = z.object({
+  label: z.string().nullish(),
+  href: z.string().nullish(),
+});
+
+const rawSocialLinkSchema = z.object({
+  platform: z.string().nullish(),
+  url: z.string().nullish(),
+});
+
+const rawGlobalSettingsSchema = z.object({
+  headerNav: z
+    .array(rawGlobalSettingsLinkSchema)
+    .nullish()
+    .transform((value) => value ?? []),
+  footerNav: z
+    .array(rawGlobalSettingsLinkSchema)
+    .nullish()
+    .transform((value) => value ?? []),
+  socialLinks: z
+    .array(rawSocialLinkSchema)
+    .nullish()
+    .transform((value) => value ?? []),
+  globalCta: rawCtaSchema.nullish(),
+});
+
+const rawGlobalSettingsResponseSchema = z.object({
+  globalSettings: z
+    .object({
+      globalContent: rawGlobalSettingsSchema.nullish(),
+    })
+    .nullish(),
+});
+
 type RawPageNode = z.infer<typeof rawPageNodeSchema>;
 type RawSectionRecord = Record<string, unknown>;
 type RawSection = z.infer<typeof rawSectionSchema>;
+type RawGlobalSettings = z.infer<typeof rawGlobalSettingsSchema>;
 
 type MapWordPressPageOptions = {
   siteUrl: string;
+};
+
+const emptyGlobalSettings: GlobalSettings = {
+  headerNav: [],
+  footerNav: [],
+  socialLinks: [],
+  globalCta: null,
 };
 
 export class WordPressMappingError extends Error {
@@ -205,6 +265,20 @@ function buildCanonicalUrl(slug: string, siteUrl: string) {
   const pathname = slug ? `/${slug}` : "/";
 
   return new URL(pathname, siteUrl).toString();
+}
+
+function normalizeNoindex(value: boolean | number | string | null | undefined) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  const normalized = normalizeOptionalString(value)?.toLowerCase();
+
+  return normalized === "noindex" || normalized === "true" || normalized === "1";
 }
 
 function mapMediaAsset(
@@ -247,6 +321,38 @@ function mapCallToAction(
   };
 }
 
+function mapNavigationLink(
+  item: z.infer<typeof rawGlobalSettingsLinkSchema>,
+): NavigationLink | null {
+  const label = normalizeOptionalString(item.label);
+  const href = normalizeOptionalString(item.href);
+
+  if (!label || !href) {
+    return null;
+  }
+
+  return {
+    label,
+    href,
+  };
+}
+
+function mapSocialLink(
+  item: z.infer<typeof rawSocialLinkSchema>,
+): SocialLink | null {
+  const platform = normalizeOptionalString(item.platform);
+  const url = normalizeOptionalString(item.url);
+
+  if (!platform || !url) {
+    return null;
+  }
+
+  return {
+    platform,
+    url,
+  };
+}
+
 function mapFeatureItem(
   item: z.infer<typeof rawFeatureItemSchema>,
 ): FeatureGridItem {
@@ -285,6 +391,12 @@ function mapStat(item: z.infer<typeof rawStatSchema>): StatItem {
   };
 }
 
+function normalizeFormType(
+  formType: z.infer<typeof rawFormSectionSchema>["formType"],
+): "waitlist" | "demo" | "contact" {
+  return Array.isArray(formType) ? formType[0] : formType;
+}
+
 function mapSeo(rawPage: RawPageNode, siteUrl: string): SeoMetadata {
   const slug = normalizeUriToSlug(rawPage.uri);
   const title = normalizeOptionalString(rawPage.seo?.title) ?? rawPage.title;
@@ -294,7 +406,8 @@ function mapSeo(rawPage: RawPageNode, siteUrl: string): SeoMetadata {
     title,
     description,
     canonicalUrl:
-      normalizeOptionalString(rawPage.seo?.canonical) ?? buildCanonicalUrl(slug, siteUrl),
+      normalizeOptionalString(rawPage.seo?.canonical) ??
+      buildCanonicalUrl(slug, siteUrl),
     openGraph: {
       title: normalizeOptionalString(rawPage.seo?.opengraphTitle) ?? title,
       description:
@@ -436,11 +549,43 @@ function mapParsedSection(rawSection: RawSection, index: number): PageSection {
         id: buildSectionId("formSection", index, anchor),
         _type: "formSection",
         anchor,
-        formType: rawSection.formType,
+        formType: normalizeFormType(rawSection.formType),
         headline: rawSection.headline,
         body: normalizeOptionalString(rawSection.body),
       };
   }
+}
+
+function mapGlobalSettings(rawGlobalSettings: RawGlobalSettings): GlobalSettings {
+  return {
+    headerNav: rawGlobalSettings.headerNav
+      .map(mapNavigationLink)
+      .filter((item): item is NavigationLink => item !== null),
+    footerNav: rawGlobalSettings.footerNav
+      .map(mapNavigationLink)
+      .filter((item): item is NavigationLink => item !== null),
+    socialLinks: rawGlobalSettings.socialLinks
+      .map(mapSocialLink)
+      .filter((item): item is SocialLink => item !== null),
+    globalCta: mapCallToAction(rawGlobalSettings.globalCta) ?? null,
+  };
+}
+
+export function mapGlobalSettingsResponse(response: unknown): GlobalSettings {
+  const parsedResponse = rawGlobalSettingsResponseSchema.safeParse(response);
+
+  if (!parsedResponse.success) {
+    throw new WordPressMappingError(
+      "WordPress global settings response failed validation.",
+      parsedResponse.error.issues,
+    );
+  }
+
+  if (!parsedResponse.data.globalSettings?.globalContent) {
+    return emptyGlobalSettings;
+  }
+
+  return mapGlobalSettings(parsedResponse.data.globalSettings.globalContent);
 }
 
 export function mapWordPressPageResponse(
@@ -479,6 +624,9 @@ export function mapWordPressPageResponse(
   return {
     title: rawPage.title,
     slug,
+    noindex: normalizeNoindex(rawPage.seo?.metaRobotsNoindex),
+    template: normalizeOptionalString(rawPage.template?.templateName) ?? "default",
+    status: normalizeOptionalString(rawPage.status) ?? "unknown",
     seo: mapSeo(rawPage, siteUrl),
     sections,
   };

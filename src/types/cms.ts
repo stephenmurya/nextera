@@ -8,6 +8,16 @@ export interface CallToAction {
   href: string;
 }
 
+export interface NavigationLink {
+  label: string;
+  href: string;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+}
+
 export interface SeoMetadata {
   title: string;
   description?: string;
@@ -128,9 +138,19 @@ export type PageSection =
   | StatsStripSection
   | FormSection;
 
+export interface GlobalSettings {
+  headerNav: NavigationLink[];
+  footerNav: NavigationLink[];
+  socialLinks: SocialLink[];
+  globalCta: CallToAction | null;
+}
+
 export interface Page {
   title: string;
   slug: string;
+  noindex: boolean;
+  template: string;
+  status: string;
   seo: SeoMetadata;
   sections: PageSection[];
 }

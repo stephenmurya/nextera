@@ -65,18 +65,35 @@ export function buildContentSecurityPolicy({
   nodeEnv = process.env.NODE_ENV,
   wordpressOrigin = getWordPressOrigin(),
 }: ContentSecurityPolicyOptions = {}) {
+  const scriptSources = [
+    "'self'",
+    "'unsafe-inline'",
+    ...(nodeEnv === "development" ? ["'unsafe-eval'"] : []),
+    "https://js.hsforms.net",
+    "https://*.hsforms.net",
+    "https://va.vercel-scripts.com",
+  ];
+
+  const connectSources = [
+    "'self'",
+    "https://*.hubspot.com",
+    "https://*.hsforms.com",
+    "https://*.hsforms.net",
+    "https://vitals.vercel-insights.com",
+    ...(nodeEnv === "development" ? ["ws:", "wss:"] : []),
+  ];
+
   const directives: Array<[string, string[]]> = [
     ["default-src", ["'self'"]],
     ["base-uri", ["'self'"]],
     ["object-src", ["'none'"]],
     ["frame-ancestors", ["'self'"]],
-    [
-      "script-src",
-      nodeEnv === "development"
-        ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"]
-        : ["'self'", "'unsafe-inline'"],
-    ],
+    ["script-src", scriptSources],
+    ["script-src-elem", scriptSources],
     ["style-src", ["'self'", "'unsafe-inline'"]],
+    ["connect-src", connectSources],
+    ["frame-src", ["'self'", "https://*.hsforms.net", "https://*.hubspot.com"]],
+    ["child-src", ["'self'", "https://*.hsforms.net", "https://*.hubspot.com"]],
     [
       "img-src",
       wordpressOrigin
@@ -84,10 +101,6 @@ export function buildContentSecurityPolicy({
         : ["'self'", "data:"],
     ],
   ];
-
-  if (nodeEnv === "development") {
-    directives.push(["connect-src", ["'self'", "ws:", "wss:"]]);
-  }
 
   return directives
     .map(([directive, values]) => `${directive} ${values.join(" ")}`)

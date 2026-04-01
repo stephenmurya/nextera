@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TrackedCtaLink } from "@/components/observability/TrackedCtaLink";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { CtaBandSection as CtaBandSectionData } from "@/types/cms";
 
@@ -34,13 +34,15 @@ export function CtaBand({
           </div>
           {primaryCta ? (
             <div className="shrink-0">
-              <Link
+              <TrackedCtaLink
                 className={getButtonClassName("cream")}
                 href={primaryCta.href}
+                label={primaryCta.label}
+                location="cta-band"
                 style={getButtonStyle("cream")}
               >
                 {primaryCta.label}
-              </Link>
+              </TrackedCtaLink>
             </div>
           ) : null}
         </div>

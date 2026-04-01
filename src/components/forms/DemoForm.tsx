@@ -9,6 +9,7 @@ import {
 type DemoFormProps = {
   description?: string;
   embedded?: boolean;
+  hideHeader?: boolean;
   title?: string;
 };
 
@@ -28,6 +29,7 @@ const defaultValues: DemoFormValues = {
 export function DemoForm({
   description = "Schedule a tailored walkthrough to see how the CRM can improve lead response times and pipeline visibility.",
   embedded = false,
+  hideHeader = false,
   title = "Book a personalized demo",
 }: DemoFormProps) {
   return (
@@ -35,6 +37,7 @@ export function DemoForm({
       defaultValues={defaultValues}
       description={description}
       embedded={embedded}
+      hideHeader={hideHeader}
       schema={demoFormSchema}
       submitLabel="Request a demo"
       title={title}

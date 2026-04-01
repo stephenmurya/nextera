@@ -21,6 +21,10 @@ vi.mock("@/components/DraftIndicator", () => ({
   DraftIndicator: () => <div data-draft-indicator="true" />,
 }));
 
+vi.mock("@/components/observability/PageViewTracker", () => ({
+  PageViewTracker: () => <div data-page-view-tracker="true" />,
+}));
+
 vi.mock("@/components/SectionRenderer", () => ({
   SectionRenderer: () => <div data-section-renderer="true" />,
 }));
@@ -37,11 +41,16 @@ vi.mock("@/lib/wordpress/client", async () => {
   };
 });
 
-import MarketingPage from "@/app/(marketing)/[[...slug]]/page";
+import MarketingPage, {
+  generateMetadata,
+} from "@/app/(marketing)/[[...slug]]/page";
 
 const mockPage = {
   title: "About",
   slug: "about",
+  noindex: false,
+  template: "standard",
+  status: "publish",
   seo: {
     canonicalUrl: "https://example.com/about",
     description: "About page",
@@ -78,6 +87,8 @@ describe("marketing page draft indicator", () => {
     );
 
     expect(html).toContain("data-draft-indicator");
+    expect(html).toContain("data-page-view-tracker");
+    expect(html).toContain('data-page-template="standard"');
     expect(marketingPageMocks.getPageByUri).toHaveBeenCalledWith(
       "/about/",
       true,
@@ -100,6 +111,8 @@ describe("marketing page draft indicator", () => {
     );
 
     expect(html).not.toContain("data-draft-indicator");
+    expect(html).toContain("data-page-view-tracker");
+    expect(html).toContain('data-page-template="standard"');
     expect(marketingPageMocks.getPageByUri).toHaveBeenCalledWith(
       "/about/",
       false,
@@ -141,5 +154,28 @@ describe("marketing page draft indicator", () => {
       }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
     expect(notFound).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns noindex robots metadata for pages marked noindex", async () => {
+    marketingPageMocks.draftMode.mockResolvedValue({
+      disable: vi.fn(),
+      enable: vi.fn(),
+      isEnabled: false,
+    });
+    marketingPageMocks.getPageByUri.mockResolvedValue({
+      ...mockPage,
+      noindex: true,
+    });
+
+    const metadata = await generateMetadata({
+      params: Promise.resolve({
+        slug: ["about"],
+      }),
+    });
+
+    expect(metadata.robots).toEqual({
+      index: false,
+      follow: false,
+    });
   });
 });

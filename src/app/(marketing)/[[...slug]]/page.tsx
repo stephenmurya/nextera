@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { DraftIndicator } from "@/components/DraftIndicator";
+import { PageViewTracker } from "@/components/observability/PageViewTracker";
 import { SectionRenderer } from "@/components/SectionRenderer";
 import { env } from "@/lib/env";
 import {
@@ -17,6 +18,12 @@ type MarketingPageProps = {
   }>;
 };
 
+type MarketingPageContentProps = {
+  isDraft: boolean;
+  page: Page;
+  template: string;
+};
+
 function buildCanonicalUrl(slug: string): string {
   const pathname = slug ? `/${slug}` : "/";
 
@@ -27,6 +34,12 @@ function pageToMetadata(page: Page): Metadata {
   return {
     title: page.seo.title,
     description: page.seo.description,
+    robots: page.noindex
+      ? {
+          index: false,
+          follow: false,
+        }
+      : undefined,
     alternates: {
       canonical: page.seo.canonicalUrl,
     },
@@ -55,6 +68,20 @@ async function resolveRouteTarget(paramsPromise: MarketingPageProps["params"]) {
     slug: normalizedSlug,
     uri: normalizeWordPressUri(slug),
   };
+}
+
+function MarketingPageContent({
+  isDraft,
+  page,
+  template,
+}: MarketingPageContentProps) {
+  return (
+    <main className="flex-1 w-full" data-page-template={template}>
+      <PageViewTracker template={template} />
+      {isDraft ? <DraftIndicator /> : null}
+      <SectionRenderer sections={page.sections} />
+    </main>
+  );
 }
 
 export async function generateMetadata({
@@ -94,9 +121,10 @@ export default async function MarketingPage({ params }: MarketingPageProps) {
   }
 
   return (
-    <main className="flex-1 w-full">
-      {isEnabled ? <DraftIndicator /> : null}
-      <SectionRenderer sections={page.sections} />
-    </main>
+    <MarketingPageContent
+      isDraft={isEnabled}
+      page={page}
+      template={page.template}
+    />
   );
 }

@@ -3,14 +3,16 @@ import { ClientError, GraphQLClient } from "graphql-request";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import {
+  mapGlobalSettingsResponse,
   mapWordPressPageResponse,
   WordPressMappingError,
 } from "@/lib/wordpress/mapper";
 import {
   GET_ALL_PAGE_URIS,
+  GET_GLOBAL_SETTINGS,
   GET_PAGE_BY_URI,
 } from "@/lib/wordpress/queries";
-import type { Page } from "@/types/cms";
+import type { GlobalSettings, Page } from "@/types/cms";
 
 export const WORDPRESS_REVALIDATE_SECONDS = 300;
 export const WORDPRESS_TIMEOUT_MS = 10_000;
@@ -19,6 +21,8 @@ const WORDPRESS_QUERY_NAME = "GetPageByUri";
 const WORDPRESS_CACHE_TAG = "wordpress";
 const WORDPRESS_SITEMAP_QUERY_NAME = "GetAllPageUris";
 const WORDPRESS_SITEMAP_CACHE_TAG = "wordpress-sitemap";
+const WORDPRESS_GLOBAL_SETTINGS_QUERY_NAME = "GetGlobalSettings";
+const WORDPRESS_GLOBAL_SETTINGS_CACHE_TAG = "wordpress-global-settings";
 
 type NextFetchRequestConfig = {
   revalidate?: number | false;
@@ -40,6 +44,10 @@ type WordPressErrorKind =
 
 type GetPageByUriResponse = {
   page: unknown;
+};
+
+type GetGlobalSettingsResponse = {
+  globalSettings?: unknown;
 };
 
 export type GetPageByUriVariables = {
@@ -375,5 +383,48 @@ export async function getAllPublishedPageUris(): Promise<PublishedPageUri[]> {
     });
 
     return [];
+  }
+}
+
+export async function getGlobalSettings(
+  isDraft = false,
+): Promise<GlobalSettings> {
+  const mode: WordPressRequestMode = isDraft ? "draft" : "published";
+
+  try {
+    const client = createWordPressClient({
+      isDraft,
+      tags: [WORDPRESS_CACHE_TAG, WORDPRESS_GLOBAL_SETTINGS_CACHE_TAG],
+    });
+    const response = await client.request<GetGlobalSettingsResponse>({
+      document: GET_GLOBAL_SETTINGS,
+      signal: AbortSignal.timeout(WORDPRESS_TIMEOUT_MS),
+    });
+
+    return mapGlobalSettingsResponse(response);
+  } catch (error) {
+    const details = classifyWordPressError(error);
+
+    console.error("[wordpress] Query failed", {
+      queryName: WORDPRESS_GLOBAL_SETTINGS_QUERY_NAME,
+      mode,
+      kind: details.kind,
+      status: details.status,
+      message: details.message,
+    });
+
+    throw new WordPressRequestError(
+      `WordPress query ${WORDPRESS_GLOBAL_SETTINGS_QUERY_NAME} failed.`,
+      {
+        kind: details.kind,
+        queryName: WORDPRESS_GLOBAL_SETTINGS_QUERY_NAME,
+        slug: "global-settings",
+        mode,
+        status: details.status,
+      },
+      {
+        cause: error instanceof Error ? error : undefined,
+      },
+    );
   }
 }

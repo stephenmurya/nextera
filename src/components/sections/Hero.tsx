@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { TrackedCtaLink } from "@/components/observability/TrackedCtaLink";
 import { getButtonClassName, getButtonStyle } from "@/components/ui/buttonStyles";
 import type { HeroSection as HeroSectionData } from "@/types/cms";
 
@@ -57,22 +57,26 @@ export function Hero({
                 ].join(" ")}
               >
                 {primaryCta ? (
-                  <Link
+                  <TrackedCtaLink
                     className={getButtonClassName("primary")}
                     href={primaryCta.href}
+                    label={primaryCta.label}
+                    location="hero-primary"
                     style={getButtonStyle("primary")}
                   >
                     {primaryCta.label}
-                  </Link>
+                  </TrackedCtaLink>
                 ) : null}
                 {secondaryCta ? (
-                  <Link
+                  <TrackedCtaLink
                     className={getButtonClassName("secondary")}
                     href={secondaryCta.href}
+                    label={secondaryCta.label}
+                    location="hero-secondary"
                     style={getButtonStyle("secondary")}
                   >
                     {secondaryCta.label}
-                  </Link>
+                  </TrackedCtaLink>
                 ) : null}
               </div>
             ) : null}

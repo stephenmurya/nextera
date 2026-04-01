@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  mapGlobalSettingsResponse,
   mapWordPressPageResponse,
   WordPressMappingError,
 } from "@/lib/wordpress/mapper";
@@ -11,10 +12,15 @@ const validResponse = {
     title: "About Real Estate CRM",
     slug: "about",
     uri: "/about/",
+    status: "publish",
+    template: {
+      templateName: "standard",
+    },
     seo: {
       title: "About | Real Estate CRM",
       metaDesc: "Build a better real estate growth engine.",
       canonical: "https://example.com/about",
+      metaRobotsNoindex: "index",
       opengraphTitle: "About Real Estate CRM",
       opengraphDescription: "Build a better real estate growth engine.",
       opengraphImage: {
@@ -83,6 +89,9 @@ describe("mapWordPressPageResponse", () => {
     expect(page).toEqual({
       title: "About Real Estate CRM",
       slug: "about",
+      noindex: false,
+      template: "standard",
+      status: "publish",
       seo: {
         title: "About | Real Estate CRM",
         description: "Build a better real estate growth engine.",
@@ -151,6 +160,8 @@ describe("mapWordPressPageResponse", () => {
         title: "Homepage",
         slug: "home",
         uri: "/",
+        status: "draft",
+        template: null,
         seo: null,
         pageBuilder: {
           sections: [],
@@ -163,6 +174,9 @@ describe("mapWordPressPageResponse", () => {
     expect(page).toEqual({
       title: "Homepage",
       slug: "",
+      noindex: false,
+      template: "default",
+      status: "draft",
       seo: {
         title: "Homepage",
         description: undefined,
@@ -183,10 +197,15 @@ describe("mapWordPressPageResponse", () => {
         title: "Platform Overview",
         slug: "platform",
         uri: "/platform/",
+        status: "publish",
+        template: {
+          templateName: null,
+        },
         seo: {
           title: null,
           metaDesc: "Operational clarity for high-performing teams.",
           canonical: null,
+          metaRobotsNoindex: true,
           opengraphTitle: null,
           opengraphDescription: null,
           opengraphImage: null,
@@ -209,6 +228,9 @@ describe("mapWordPressPageResponse", () => {
         image: undefined,
       },
     });
+    expect(page?.noindex).toBe(true);
+    expect(page?.template).toBe("default");
+    expect(page?.status).toBe("publish");
   });
 
   it("maps the expanded flexible content layouts into normalized sections", () => {
@@ -217,6 +239,10 @@ describe("mapWordPressPageResponse", () => {
         title: "Expanded Sections",
         slug: "expanded-sections",
         uri: "/expanded-sections/",
+        status: "publish",
+        template: {
+          templateName: "landing",
+        },
         seo: null,
         pageBuilder: {
           sections: [
@@ -292,7 +318,7 @@ describe("mapWordPressPageResponse", () => {
             {
               __typename: "PageBuilderSectionsFormSectionLayout",
               anchor: "form",
-              formType: "demo",
+              formType: ["demo"],
               headline: "Book your demo",
               body: "Tell us about your market and team.",
             },
@@ -386,6 +412,9 @@ describe("mapWordPressPageResponse", () => {
         body: "Tell us about your market and team.",
       },
     ]);
+    expect(page?.template).toBe("landing");
+    expect(page?.status).toBe("publish");
+    expect(page?.noindex).toBe(false);
   });
 
   it("drops unknown or malformed sections without crashing the page", () => {
@@ -441,5 +470,152 @@ describe("mapWordPressPageResponse", () => {
         { siteUrl },
       ),
     ).toThrow(WordPressMappingError);
+  });
+});
+
+describe("mapGlobalSettingsResponse", () => {
+  it("maps a valid global settings payload into the normalized model", () => {
+    expect(
+      mapGlobalSettingsResponse({
+        globalSettings: {
+          globalContent: {
+            headerNav: [
+              {
+                label: "Home",
+                href: "/",
+              },
+              {
+                label: "Contact",
+                href: "/contact",
+              },
+            ],
+            footerNav: [
+              {
+                label: "Privacy",
+                href: "/privacy",
+              },
+            ],
+            socialLinks: [
+              {
+                platform: "LinkedIn",
+                url: "https://linkedin.com/company/agentflow",
+              },
+            ],
+            globalCta: {
+              label: "Request Demo",
+              href: "/demo",
+            },
+          },
+        },
+      }),
+    ).toEqual({
+      headerNav: [
+        {
+          label: "Home",
+          href: "/",
+        },
+        {
+          label: "Contact",
+          href: "/contact",
+        },
+      ],
+      footerNav: [
+        {
+          label: "Privacy",
+          href: "/privacy",
+        },
+      ],
+      socialLinks: [
+        {
+          platform: "LinkedIn",
+          url: "https://linkedin.com/company/agentflow",
+        },
+      ],
+      globalCta: {
+        label: "Request Demo",
+        href: "/demo",
+      },
+    });
+  });
+
+  it("falls back to empty collections when global settings are missing", () => {
+    expect(
+      mapGlobalSettingsResponse({
+        globalSettings: null,
+      }),
+    ).toEqual({
+      headerNav: [],
+      footerNav: [],
+      socialLinks: [],
+      globalCta: null,
+    });
+  });
+
+  it("falls back to empty collections when global content is missing", () => {
+    expect(
+      mapGlobalSettingsResponse({
+        globalSettings: {
+          globalContent: null,
+        },
+      }),
+    ).toEqual({
+      headerNav: [],
+      footerNav: [],
+      socialLinks: [],
+      globalCta: null,
+    });
+  });
+
+  it("drops incomplete navigation and social entries while preserving valid ones", () => {
+    expect(
+      mapGlobalSettingsResponse({
+        globalSettings: {
+          globalContent: {
+            headerNav: [
+              {
+                label: "Home",
+                href: "/",
+              },
+              {
+                label: "",
+                href: "/broken",
+              },
+            ],
+            footerNav: [
+              {
+                label: null,
+                href: "/terms",
+              },
+            ],
+            socialLinks: [
+              {
+                platform: "LinkedIn",
+                url: "https://linkedin.com/company/agentflow",
+              },
+              {
+                platform: "X",
+                url: "",
+              },
+            ],
+            globalCta: null,
+          },
+        },
+      }),
+    ).toEqual({
+      headerNav: [
+        {
+          label: "Home",
+          href: "/",
+        },
+      ],
+      footerNav: [],
+      socialLinks: [
+        {
+          platform: "LinkedIn",
+          url: "https://linkedin.com/company/agentflow",
+        },
+      ],
+      globalCta: null,
+    });
   });
 });

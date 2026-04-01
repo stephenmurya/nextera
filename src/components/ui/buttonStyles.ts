@@ -4,7 +4,7 @@ export type ButtonVariant = "primary" | "secondary" | "cream";
 export type ButtonSize = "sm" | "md";
 
 const buttonBaseClassName =
-  "inline-flex items-center justify-center rounded-full text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2";
+  "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2";
 
 const buttonSizeClassNames: Record<ButtonSize, string> = {
   sm: "px-5 py-2.5",

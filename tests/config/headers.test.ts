@@ -39,11 +39,30 @@ describe("next.config security helpers", () => {
     expect(developmentCsp).toContain(
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     );
-    expect(developmentCsp).toContain("connect-src 'self' ws: wss:");
+    expect(developmentCsp).toContain("script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'");
+    expect(developmentCsp).toContain("https://js.hsforms.net");
+    expect(developmentCsp).toContain("https://*.hsforms.net");
+    expect(developmentCsp).toContain("https://va.vercel-scripts.com");
+    expect(developmentCsp).toContain(
+      "connect-src 'self' https://*.hubspot.com https://*.hsforms.com https://*.hsforms.net https://vitals.vercel-insights.com ws: wss:",
+    );
+    expect(developmentCsp).toContain(
+      "frame-src 'self' https://*.hsforms.net https://*.hubspot.com",
+    );
+    expect(developmentCsp).toContain(
+      "child-src 'self' https://*.hsforms.net https://*.hubspot.com",
+    );
     expect(productionCsp).toContain("img-src 'self' data: https://cms.example.com");
     expect(productionCsp).toContain("script-src 'self' 'unsafe-inline'");
+    expect(productionCsp).toContain("script-src-elem 'self' 'unsafe-inline'");
+    expect(productionCsp).toContain(
+      "connect-src 'self' https://*.hubspot.com https://*.hsforms.com https://*.hsforms.net https://vitals.vercel-insights.com",
+    );
+    expect(productionCsp).toContain(
+      "frame-src 'self' https://*.hsforms.net https://*.hubspot.com",
+    );
     expect(productionCsp).not.toContain("'unsafe-eval'");
-    expect(productionCsp).not.toContain("connect-src");
+    expect(productionCsp).not.toContain("ws: wss:");
   });
 
   it("emits the exact required security headers for all routes", async () => {
